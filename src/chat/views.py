@@ -1,3 +1,4 @@
+from httpx import delete
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -6,7 +7,7 @@ from django.core.validators import ValidationError
 from django.contrib.auth.models import User
 
 from .models import Chat, Message
-from .serializers import ChatSerilizer, MessageSerializer  
+from .serializers import ChatSerilizer, MessageSerializer
 from .services import get_ai_response
 
 
@@ -31,8 +32,8 @@ class ChatView(APIView):
         chats = Chat.objects.filter(user=request.user)
         serializer = ChatSerilizer(chats, many=True)
         return Response(serializer.data)
-        
-    def post(self, request, chat_id=None,):
+
+    def post(self, request, chat_id=None):
         if chat_id:
             chat = get_chat(chat_id, request.user)
         else:
@@ -47,3 +48,8 @@ class ChatView(APIView):
         ai_message = get_ai_response(chat, message)
 
         return Response({"chat_id": chat.id, "message": ai_message.content})
+
+    def delete(self, request, chat_id):
+        chat = get_chat(chat_id, request.user)
+        chat.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

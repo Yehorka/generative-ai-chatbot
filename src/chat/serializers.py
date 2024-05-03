@@ -12,5 +12,5 @@ class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
         fields = ['role', 'content']
-        read_only = ['roel']
+        read_only = ['role']
 

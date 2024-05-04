@@ -220,6 +220,15 @@
   margin-right: 5px;
 }
 
+.profile-square{ 
+    bottom: 0;         /* Вирівнювання по нижньому краю */
+    left: 0;           /* Вирівнювання по лівому краю */
+    width: auto;       /* Ширина елементу розтягується на всю ширину вікна */
+    background: rgba(0, 0, 0, 0.25); /* Чорний колір з прозорістю 25% */
+    border-radius: 10px; /* Скруглені кути */
+    padding: 1%;    /* Внутрішні відступи для контенту всередині контейнера */
+    box-sizing: border-box; /* Допомагає управляти розмірами елемента, включаючи padding і border */
+}
 /* Add this media query */
 @media screen and (max-width: 768px) {
   .App {
@@ -261,4 +270,5 @@
   .chat-input button {
     padding: 0.5rem 1rem;
   }
+
 }

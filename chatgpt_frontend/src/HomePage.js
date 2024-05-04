@@ -46,7 +46,7 @@ function HomePage() {
   
     const fetchChats = async () => {
       try {
-        const accessToken = localStorage.getItem('accessToken'); // Отримання токена з локального сховища
+        const accessToken = localStorage.getItem('accessToken'); 
         const response = await axiosInstance.get(`${baseURL}/chat/`);
         setChats(response.data);
       } catch (error) {
@@ -81,7 +81,7 @@ function HomePage() {
         const delay = 1000 + Math.random() * 1000; // Random delay between 1-2 seconds
         setTimeout(async () => {
           try {
-            const response = await axiosInstance.post(`${baseURL}/chat/`, {
+            const response = await axiosInstance.post(`${baseURL}/chat/${selectedChatId}/`, {
               chat_id: selectedChatId || undefined,
               message: inputMessage,
             });
@@ -114,13 +114,24 @@ function HomePage() {
   
     const createNewChat = async () => {
       try {
-        const response = await axiosInstance.post(`${baseURL}/chat/`);
+        const response = await axiosInstance.post(`${baseURL}/chat/`, {
+          message: 'Доброго дня!',
+        });
         const newChat = response.data;
   
         setChats([newChat, ...chats]);
         setSelectedChatId(newChat.id);
       } catch (error) {
         console.error("Error creating a new chat:", error);
+      }
+    };
+
+   const deleteChat = async () => {
+      try {
+        const response = await axiosInstance.delete(`${baseURL}/chat/${selectedChatId}`);
+        fetchChats();
+      } catch (error) {
+        console.error("Error deleting a chat:", error);
       }
     };
   
@@ -156,7 +167,9 @@ function HomePage() {
               chats={chats}
               selectedChatId={selectedChatId}
               setSelectedChatId={setSelectedChatId}
+              deleteChat={deleteChat}
             />
+            <Profile></Profile>
           </div>
           <ChatUI
             messages={messages}
@@ -167,9 +180,10 @@ function HomePage() {
             isAssistantTyping={isAssistantTyping}
             messagesEndRef={messagesEndRef}
           />
+
         </div>
         <div className="footer">
-        <Profile></Profile>
+        
         </div>
       </div>
     );

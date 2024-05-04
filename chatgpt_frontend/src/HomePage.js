@@ -1,20 +1,21 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 import { FaGithub } from "react-icons/fa";
 import { useAxios } from "./useAxios";
 
 import "./App.css";
 import ChatHistory from "./components/ChatHistory";
 import ChatUI from "./components/ChatUI";
+import Profile from "./Profile";
 
-axios.defaults.baseURL = "http://localhost:8000/api"
+
 
 const baseURL =
   process.env.REACT_APP_BACKEND_URL || "http://localhost:8000/api";
 
 
 function HomePage() {
-    const axios = useAxios();
+    //const axios = useAxios();
 
     const [chats, setChats] = useState([]);
     const [selectedChatId, setSelectedChatId] = useState(null);
@@ -46,9 +47,7 @@ function HomePage() {
     const fetchChats = async () => {
       try {
         const accessToken = localStorage.getItem('accessToken'); // Отримання токена з локального сховища
-        const response = await axios.get(`${baseURL}/chat/`, {headers: {
-          'Authorization': `Bearer ${accessToken}` // Важливо: використовуйте `Bearer`
-        }});
+        const response = await axiosInstance.get(`${baseURL}/chat/`);
         setChats(response.data);
       } catch (error) {
         console.error("Error fetching chats:", error);
@@ -57,7 +56,7 @@ function HomePage() {
   
     const fetchMessages = async (chatId) => {
       try {
-        const response = await axios.get(`${baseURL}/chat/${chatId}/`);
+        const response = await axiosInstance.get(`${baseURL}/chat/${chatId}/`);
         setMessages(response.data);
       } catch (error) {
         console.error("Error fetching messages:", error);
@@ -82,7 +81,7 @@ function HomePage() {
         const delay = 1000 + Math.random() * 1000; // Random delay between 1-2 seconds
         setTimeout(async () => {
           try {
-            const response = await axios.post(`${baseURL}/chat/`, {
+            const response = await axiosInstance.post(`${baseURL}/chat/`, {
               chat_id: selectedChatId || undefined,
               message: inputMessage,
             });
@@ -115,7 +114,7 @@ function HomePage() {
   
     const createNewChat = async () => {
       try {
-        const response = await axios.post(`${baseURL}/chat/`);
+        const response = await axiosInstance.post(`${baseURL}/chat/`);
         const newChat = response.data;
   
         setChats([newChat, ...chats]);
@@ -170,14 +169,7 @@ function HomePage() {
           />
         </div>
         <div className="footer">
-          <a
-            href="https://github.com/fatihbaltaci/chatgpt-clone"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <FaGithub className="icon" />
-            View on GitHub
-          </a>
+        <Profile></Profile>
         </div>
       </div>
     );

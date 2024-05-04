@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import axiosInstance from './axiosInstance';
+import { useAxios } from './useAxios';
 
 function Register() {
+    //const axios = useAxios();
     const [userData, setUserData] = useState({
         username: '',
-        password: ''
+        password: '',
+        user_type: 'student'
     });
 
     const handleChange = (e) => {
@@ -14,8 +17,8 @@ function Register() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8090/api/users/register/', userData);
-            const response2 = await axios.post('http://localhost:8090/api/users/token/', userData);
+            const response = await axiosInstance.post('http://localhost:8090/api/users/register/', userData);
+            const response2 = await axiosInstance.post('http://localhost:8090/api/users/token/', userData);
 
             localStorage.setItem('accessToken', response2.data.access);
             localStorage.setItem('refreshToken', response2.data.refresh);

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     
     'rest_framework',
     'rest_framework_simplejwt',
+
     'corsheaders',
     'chat.apps.ChatConfig',
     'users.apps.UsersConfig'
@@ -145,3 +146,4 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 OPENAI_API_KEY = getenv("OPENAI_API_KEY")
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = ['*']
+AUTH_USER_MODEL = 'users.CustomUser'

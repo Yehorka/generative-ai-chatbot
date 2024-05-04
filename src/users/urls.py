@@ -12,6 +12,5 @@ urlpatterns = [
     path('register/', views.CreateUserView.as_view()),
     path('token/', TokenObtainPairView.as_view()),
     path('token/refresh/', TokenRefreshView.as_view()),
-    ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -1,14 +1,15 @@
-from httpx import delete
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404
 from django.core.validators import ValidationError
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 
 from .models import Chat, Message
 from .serializers import ChatSerilizer, MessageSerializer
 from .services import get_ai_response
+
+User = get_user_model()
 
 
 def get_chat(chat_id: str, user: User) -> Chat:

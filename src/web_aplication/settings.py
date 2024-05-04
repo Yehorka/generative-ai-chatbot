@@ -139,3 +139,5 @@ REST_FRAMEWORK = {
 }
 
 OPENAI_API_KEY = getenv("OPENAI_API_KEY")
+
+AUTH_USER_MODEL = 'users.CustomUser'

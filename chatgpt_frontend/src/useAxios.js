@@ -13,11 +13,26 @@ export function useAxios() {
     // Перехоплювач відповідей
     axiosInstance.interceptors.response.use(
         response => response,
-        error => {
+        async error => {
+            const originalRequest = error.config;
             // Перевіряємо, чи повернув сервер код статусу 401
-            if (error.response && error.response.status === 401) {
+            if (!originalRequest._retry && error.response.status === 401) {
                 // Перенаправлення на сторінку логіну
-            navigate('/register');
+                originalRequest._retry = true;
+                try{
+                const refreshToken = localStorage.getItem('refreshToken');
+                const { data } = await axios.post('http://localhost:8090/api/users/token/refresh/', { refresh: refreshToken });
+                localStorage.setItem('accessToken', data.access);
+                axios.defaults.headers.common['Authorization'] = `Bearer ${data.access}`;
+                return axios(originalRequest);  // Повторне відправлення оригінального запиту з новим токеном
+            }
+                catch (error) {
+                    console.error('Unauthorized: ',error)
+                    navigate('/users/register');
+                }
+                
+                
+                
             }
             return Promise.reject(error);
         }

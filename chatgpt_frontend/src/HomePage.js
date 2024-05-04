@@ -45,7 +45,10 @@ function HomePage() {
   
     const fetchChats = async () => {
       try {
-        const response = await axios.get(`${baseURL}/chat/`);
+        const accessToken = localStorage.getItem('accessToken'); // Отримання токена з локального сховища
+        const response = await axios.get(`${baseURL}/chat/`, {headers: {
+          'Authorization': `Bearer ${accessToken}` // Важливо: використовуйте `Bearer`
+        }});
         setChats(response.data);
       } catch (error) {
         console.error("Error fetching chats:", error);

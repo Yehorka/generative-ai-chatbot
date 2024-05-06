@@ -5,8 +5,8 @@ from django.http import Http404
 from django.core.validators import ValidationError
 from django.contrib.auth import get_user_model
 
-from .models import Chat, Message
-from .serializers import ChatSerilizer, MessageSerializer
+from .models import Chat 
+from .serializers import ChatListSerilizer, ChatSerilizer
 from .services import get_ai_response
 
 User = get_user_model()
@@ -26,12 +26,11 @@ class ChatView(APIView):
     def get(self, request, chat_id=None):
         if chat_id:
             chat = get_chat(chat_id, request.user)
-            messages = Message.objects.filter(chat=chat).order_by('timestamp')
-            serializer = MessageSerializer(messages, many=True)
+            serializer = ChatSerilizer(chat)
             return Response(serializer.data)
 
         chats = Chat.objects.filter(user=request.user)
-        serializer = ChatSerilizer(chats, many=True)
+        serializer = ChatListSerilizer(chats, many=True)
         return Response(serializer.data)
 
     def post(self, request, chat_id=None):
@@ -49,6 +48,14 @@ class ChatView(APIView):
         ai_message = get_ai_response(chat, message)
 
         return Response({"chat_id": chat.id, "message": ai_message.content})
+
+    def put(self, request, chat_id):
+        chat = get_chat(chat_id, request.user)
+        serializer = ChatSerilizer(chat, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, chat_id):
         chat = get_chat(chat_id, request.user)

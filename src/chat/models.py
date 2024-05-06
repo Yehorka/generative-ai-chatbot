@@ -7,9 +7,14 @@ import uuid
 
 
 class Chat(models.Model):
+    class GPTModelChoices(models.TextChoices):
+        GPT_4= 'gpt-4'
+        GPT_3_5_TURBO = 'gpt-3.5-turbo'
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, related_name='chats', on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    gpt_model = models.CharField(max_length=20, choices=GPTModelChoices.choices, default=GPTModelChoices.GPT_3_5_TURBO)
 
     class Meta:
         ordering = ['created_at']

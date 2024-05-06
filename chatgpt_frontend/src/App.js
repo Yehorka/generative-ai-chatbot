@@ -6,6 +6,7 @@ import axiosInstance from "./axiosInstance";
 import Register from './Register';
 import { AuthProvider } from './AuthContext';
 import Login from './Login';
+import "./App.css";
 
 axiosInstance.defaults.baseURL = "http://localhost:8090/api"
 
@@ -15,6 +16,9 @@ const baseURL =
 function App() {
       return (
         <AuthProvider>
+          <div className="headline">
+          <a href='/'>⚡ ChatGPT Clone ⚡</a>
+        </div>
           <Router>
               <Routes>
                 <Route path="/" element={<HomePage />} />

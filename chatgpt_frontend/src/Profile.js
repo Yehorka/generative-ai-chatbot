@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import axiosInstance from "./axiosInstance";
 import "./App.css";
+import { useAuth } from './AuthContext';
 
 function Profile() {
+    const { logout } = useAuth();    
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -29,13 +31,15 @@ function Profile() {
     return (
         <div className="profile-square">
             {user ? (
-                <div>
-                    <p>{user.username}</p>
-                    <p>{user.user_type}</p>
-                    <div className="logout" onClick={logout()}>logout</div>
+                <div className="profile-flex">
+                    <div>
+                    <p>Здійснено вхід як: {user.username}</p>
+                    <p>Роль: {user.user_type}</p>
+                    </div>
+                    <div className="logout" onClick={logout} >Вийти з акаунту</div>
                 </div>
             ) : (
-                <p>No user data available.</p>
+                <p>Немає інформації про користувача.</p>
             )}
         </div>
     );

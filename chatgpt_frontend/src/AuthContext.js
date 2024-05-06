@@ -11,7 +11,7 @@ function handleLogout() {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     delete axiosInstance.defaults.headers.common['Authorization'];
-    window.location.href = '/users/register/';  
+    window.location.href = '/users/login/';  
 }
 
 let isRefreshing = false;

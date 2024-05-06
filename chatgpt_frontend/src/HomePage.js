@@ -155,9 +155,7 @@ function HomePage() {
   
     return (
       <div className="App">
-        <div className="headline">
-          <h1>⚡ ChatGPT Clone ⚡</h1>
-        </div>
+
         <div className="chat-container">
           <div className="chat-history-container">
             <button className="new-chat-button" onClick={createNewChat}>

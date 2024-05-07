@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import HomePage from './HomePage';  // Це ваша існуюча початкова сторінка
-   // Це новий компонент, який ви створили
+import HomePage from './HomePage';  
 import axiosInstance from "./axiosInstance";
 import Register from './Register';
 import { AuthProvider } from './AuthContext';
@@ -16,9 +15,11 @@ const baseURL =
 function App() {
       return (
         <AuthProvider>
-          <div className="headline">
+
+          <div className="headline" >
           <a href='/'>Розумний помічник кафедри АПЕПС</a>
         </div>
+
           <Router>
               <Routes>
                 <Route path="/" element={<HomePage />} />

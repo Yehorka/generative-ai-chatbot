@@ -42,10 +42,12 @@ const DropdownMenu = ({selectedChatId }) => {
 
     return (
         <div>
+            <div>Оберіть мовну модель:</div>
             <select value={selectedModel} onChange={handleChange}>
                 <option value="gpt-4">OpenAI GPT-4</option>
                 <option value="gpt-3.5-turbo">OpenAI GPT-3.5 Turbo</option>
             </select>
+            
         </div>
     );
 };

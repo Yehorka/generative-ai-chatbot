@@ -12,10 +12,36 @@ body{background: #dde5f4;}
   padding-top: 1rem;
     padding-bottom: 1rem;
 
-  color: rgb(25, 24, 24);
+ 
   top: 0;
   text-align: center;
+  background-color: #0dcaf0;
 }
+.headline > a {
+  color: #fff;
+}
+.chat-messages > div > button{
+background-color: #0dcaf0;
+color: #fff;
+border: 0;
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+border-radius: 10px;
+transition: 0.5s ease;
+}
+
+div.chat-ui > div:nth-child(1){
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 2rem;
+  background-color: #dbe4f6;
+}
+
+.chat-messages > div > button:hover{
+  font-size: 0.9rem;
+  transition: 0.5s ease;
+}
+
 
 .headline h1 {
   margin: 0;
@@ -27,7 +53,7 @@ body{background: #dde5f4;}
   width: 80%;
   height: 80%;
   background-color: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: -1px 1px 12px 6px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
 }
 
@@ -429,6 +455,6 @@ select{
     align-items: center;
   }
   .headline{
-    padding-bottom: 2rem;
+    margin-bottom: 2rem;
   }
 }

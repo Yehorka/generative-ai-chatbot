@@ -36,7 +36,10 @@ const ChatUI = ({
           </div>
         )}
         <div ref={messagesEndRef}></div>
+        {selectedChatId ? 
         <ChatTemplates onTemplateSelect={handleMessageChange}/>
+        : null}
+        
       </div>
       <ChatInput
         inputMessage={inputMessage}

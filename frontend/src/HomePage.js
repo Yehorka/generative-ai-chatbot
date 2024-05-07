@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import axiosInstance from "./axiosInstance";
-import { FaGithub } from "react-icons/fa";
-import { useAxios } from "./useAxios";
 
 import "./App.css";
 import ChatHistory from "./components/ChatHistory";

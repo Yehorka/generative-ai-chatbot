@@ -17,7 +17,7 @@ function App() {
       return (
         <AuthProvider>
           <div className="headline">
-          <a href='/'>⚡ ChatGPT Clone ⚡</a>
+          <a href='/'>Розумний помічник кафедри АПЕПС</a>
         </div>
           <Router>
               <Routes>

@@ -7,7 +7,7 @@ function Register() {
     const [userData, setUserData] = useState({
         username: '',
         password: '',
-        user_type: 'student'
+        user_type: ''
     });
 
     const handleChange = (e) => {
@@ -24,6 +24,7 @@ function Register() {
             localStorage.setItem('refreshToken', response2.data.refresh);
             console.log('User registered:', response.data);
             console.log('User logged in:', response2.data);
+            window.location.href = '/';  
 
             // Redirect or handle response data
         } catch (error) {
@@ -51,9 +52,19 @@ function Register() {
       <ion-icon name="lock-closed-outline"></ion-icon>
       <input className="pas" type="password" name="password" placeholder="············" value={userData.password} onChange={handleChange}/>
       <ion-icon className="show-hide" name="eye-outline"></ion-icon>
+
     </div>
+
   </div>
-  <button className="login">Login </button>
+
+  <div className="type">
+    <label htmlFor="role">Оберіть роль:</label>
+                <select id="role" name="user_type" value={userData.user_type} onChange={handleChange}>
+                    <option value="student">Студент</option>
+                    <option value="teacher">Викладач</option>
+                </select>
+                </div>
+  <button className="login">Зареєструватися</button>
   
   <div className="footer1"><span><a href='/users/login'>Вхід в акаунт</a></span><span>Forgot Password?</span></div>
   

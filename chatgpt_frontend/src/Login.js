@@ -50,7 +50,7 @@ function Login() {
       <ion-icon className="show-hide" name="eye-outline"></ion-icon>
     </div>
   </div>
-  <button className="login">Login </button>
+  <button className="login">Ввійти </button>
   
   <div className="footer1"><span><a href='/users/register'>Зареєструватися</a></span><span>Forgot Password?</span></div>
   

@@ -7,11 +7,12 @@ import "./App.css";
 import ChatHistory from "./components/ChatHistory";
 import ChatUI from "./components/ChatUI";
 import Profile from "./Profile";
+import DropdownMenu from "./DropdownMenu";
 
 
 
 const baseURL =
-  process.env.REACT_APP_BACKEND_URL || "http://localhost:8000/api";
+  process.env.REACT_APP_BACKEND_URL || "http://localhost:8090/api";
 
 
 function HomePage() {
@@ -57,7 +58,7 @@ function HomePage() {
     const fetchMessages = async (chatId) => {
       try {
         const response = await axiosInstance.get(`${baseURL}/chat/${chatId}/`);
-        setMessages(response.data);
+        setMessages(response.data.messages);
       } catch (error) {
         console.error("Error fetching messages:", error);
       }
@@ -78,7 +79,7 @@ function HomePage() {
   
       try {
         // Simulate a delay for the typewriting effect
-        const delay = 1000 + Math.random() * 1000; // Random delay between 1-2 seconds
+        const delay = 1000 + Math.random() * 100; // Random delay between 1-2 seconds
         setTimeout(async () => {
           try {
             const response = await axiosInstance.post(`${baseURL}/chat/${selectedChatId}/`, {
@@ -121,6 +122,7 @@ function HomePage() {
   
         setChats([newChat, ...chats]);
         setSelectedChatId(newChat.id);
+        window.location.reload();
       } catch (error) {
         console.error("Error creating a new chat:", error);
       }
@@ -152,14 +154,18 @@ function HomePage() {
         })
         .join("");
     }
+    const handleMessageChange = (message) => {
+      setInputMessage(message);  // Функція для оновлення повідомлення
+    };
   
     return (
+      
       <div className="App">
 
         <div className="chat-container">
           <div className="chat-history-container">
             <button className="new-chat-button" onClick={createNewChat}>
-              <strong>+ New Chat</strong>
+              <strong>+ Створити чат</strong>
             </button>
             <ChatHistory
               chats={chats}
@@ -177,8 +183,11 @@ function HomePage() {
             formatMessageContent={formatMessageContent}
             isAssistantTyping={isAssistantTyping}
             messagesEndRef={messagesEndRef}
-          />
-
+            selectedChatId={selectedChatId}
+            handleMessageChange={handleMessageChange}
+          >
+            
+            </ChatUI>
         </div>
         <div className="footer">
         

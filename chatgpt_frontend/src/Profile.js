@@ -25,6 +25,16 @@ function Profile() {
         fetchData();
     }, []);
 
+    const getDisplayText = (type) => {
+        if (type === 'student') {
+            return "Студент";
+        } else if (type === 'teacher') {
+            return "Викладач";
+        } else {
+            return "Не визначено";  // Текст за замовчуванням, якщо user_type не відповідає очікуваним значенням
+        }
+    };
+
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
 
@@ -32,9 +42,9 @@ function Profile() {
         <div className="profile-square">
             {user ? (
                 <div className="profile-flex">
-                    <div>
+                    <div className="profile-info">
                     <p>Здійснено вхід як: {user.username}</p>
-                    <p>Роль: {user.user_type}</p>
+                    <p>Роль: {getDisplayText(user.user_type)}</p>
                     </div>
                     <div className="logout" onClick={logout} >Вийти з акаунту</div>
                 </div>

@@ -1,6 +1,8 @@
 import React from "react";
 import Message from "./Message";
 import ChatInput from "./ChatInput";
+import DropdownMenu from "../DropdownMenu";
+import ChatTemplates from "./ChatTemplates"
 
 const ChatUI = ({
   messages,
@@ -10,11 +12,14 @@ const ChatUI = ({
   formatMessageContent,
   isAssistantTyping,
   messagesEndRef,
+  selectedChatId,
+  handleMessageChange,
 }) => {
   return (
     <div className="chat-ui">
+      <DropdownMenu selectedChatId={selectedChatId}/>
       <div className="chat-messages">
-        {messages.map((message, index) => (
+      {messages.map((message, index) => (
           <Message
             key={index}
             message={message}
@@ -31,6 +36,7 @@ const ChatUI = ({
           </div>
         )}
         <div ref={messagesEndRef}></div>
+        <ChatTemplates onTemplateSelect={handleMessageChange}/>
       </div>
       <ChatInput
         inputMessage={inputMessage}

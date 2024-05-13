@@ -8,4 +8,3 @@ class CustomUser(AbstractUser):
         STUDENT = 'student'
 
     user_type = models.CharField(max_length=10, choices=UserTypeChoices.choices)
-

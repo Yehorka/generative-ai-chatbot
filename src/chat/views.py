@@ -5,9 +5,10 @@ from django.http import Http404
 from django.core.validators import ValidationError
 from django.contrib.auth import get_user_model
 
-from .models import Chat 
+from .models import Chat, Message
 from .serializers import ChatListSerilizer, ChatSerilizer
 from .services import get_ai_response
+from web_aplication.settings import STUDENT_SEASTEM_MESSAGE, TEACHER_SEASTEM_MESSAGE
 
 User = get_user_model()
 
@@ -20,6 +21,22 @@ def get_chat(chat_id: str, user: User) -> Chat:
         return chat
     except ValidationError:
         raise Http404
+
+
+def create_chat(user: User) -> Chat:
+    chat = Chat(user=user)
+    chat.save()
+    message_contents = {
+        User.UserTypeChoices.STUDENT: STUDENT_SEASTEM_MESSAGE,
+        User.UserTypeChoices.TEACHER: TEACHER_SEASTEM_MESSAGE,
+    }
+
+    Message(
+        chat=chat,
+        role=Message.RoleChoices.SYSTEM,
+        content=message_contents[user.user_type],
+    ).save()
+    return chat
 
 
 class ChatView(APIView):
@@ -37,10 +54,9 @@ class ChatView(APIView):
         if chat_id:
             chat = get_chat(chat_id, request.user)
         else:
-            chat = Chat(user=request.user)
-            chat.save()
+            chat = create_chat(request.user)
 
-        message = request.data.get('message')
+        message = request.data.get("message")
 
         if not message:
             return Response({"error": "no message"}, status=status.HTTP_400_BAD_REQUEST)

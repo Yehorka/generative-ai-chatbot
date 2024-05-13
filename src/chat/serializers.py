@@ -8,12 +8,18 @@ class ChatListSerilizer(serializers.ModelSerializer):
         fields = ['id']
 
 
+class NotSystemMessageSerializer(serializers.ListSerializer):
+    def to_representation(self, data):
+        data = data.exclude(role=Message.RoleChoices.SYSTEM)
+        return super().to_representation(data)
+
+
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
+        list_serializer_class = NotSystemMessageSerializer
         fields = ['role', 'content']
         read_only = ['roel']
-
 
 
 class ChatSerilizer(serializers.ModelSerializer):

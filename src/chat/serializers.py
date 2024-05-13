@@ -27,5 +27,5 @@ class ChatSerilizer(serializers.ModelSerializer):
 
     class Meta:
         model = Chat
-        fields = ['id', 'gpt_model', 'messages']
+        fields = ['id', 'name', 'gpt_model', 'messages']
         read_only_fields = ['id', 'messages']

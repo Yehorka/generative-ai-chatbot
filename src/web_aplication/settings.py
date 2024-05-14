@@ -138,5 +138,9 @@ OPENAI_API_KEY = getenv("OPENAI_API_KEY")
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
-STUDENT_SEASTEM_MESSAGE = "You are assistant for student"
-TEACHER_SEASTEM_MESSAGE = "You are assistant for teacher"
+STUDENT_SEASTEM_MESSAGE = (
+    "You are assistant for student. Do not send answers in russian."
+)
+TEACHER_SEASTEM_MESSAGE = (
+    "You are assistant for teacher. Do not send answers in russian."
+)

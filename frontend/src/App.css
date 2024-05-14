@@ -15,13 +15,13 @@ body{background: #dde5f4;}
  
   top: 0;
   text-align: center;
-  background-color: #0dcaf0;
+  background-color: #3e4684;
 }
 .headline > a {
   color: #fff;
 }
 .chat-messages > div > button{
-background-color: #0dcaf0;
+background-color: #3e4684;
 color: #fff;
 border: 0;
 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -42,6 +42,13 @@ div.chat-ui > div:nth-child(1){
   transition: 0.5s ease;
 }
 
+.auth-error-message{
+  padding: 0.5em;
+  background-color: #f7faff;;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  color:#4d4d4d;
+}
 
 .headline h1 {
   margin: 0;
@@ -66,7 +73,7 @@ div.chat-ui > div:nth-child(1){
 }
 
 .new-chat-button {
-  background-color: #0dcaf0;
+  background-color: #3e4684;
   color: white;
   border: none;
   padding: 1rem 1rem;
@@ -148,7 +155,7 @@ div.chat-ui > div:nth-child(1){
 .chat-input button {
   margin-left: 1rem;
   padding: 1rem 2rem;
-  background-color: #0dcaf0;
+  background-color: #3e4684;
   color: white;
   border: none;
   border-radius: 1.2rem;
@@ -275,12 +282,22 @@ div.chat-ui > div:nth-child(1){
 .logout{
   display: block;
   color: #ffff;
-  background-color: #0dcaf0;
+  background-color: #3e4684;
   padding: 10px;
   border-radius: 10px;
   cursor: pointer;
   transition: 0.5s ease;
 
+}
+#role{
+    background-color: rgb(219 228 246);; 
+    color: black; 
+    border: none;
+    border-radius: 10px;
+    padding: 1rem 1rem;
+    cursor: pointer;
+    box-shadow: 0 0 2em #e6e9f9;
+    margin-left: 20px;
 }
 .logout:hover{
   font-size: 1.1rem;
@@ -299,7 +316,7 @@ align-items: center;
 height: 100vh;
 }
 .screen-1 {
-
+  min-width: 20vw;
   background: #f1f7fe;
   padding: 2em;
   display: flex;
@@ -395,7 +412,7 @@ button {
 }
 
 select{
-  background-color: #0dcaf0;
+  background-color: #3e4684;
   color: white;
   border: none;
   padding: 1rem 1rem;

@@ -6,6 +6,7 @@ import Register from './Register';
 import { AuthProvider } from './AuthContext';
 import Login from './Login';
 import "./App.css";
+import AuthErrorDisplay from './AuthErrorDisplay';
 
 axiosInstance.defaults.baseURL = "http://localhost:8090/api"
 
@@ -17,9 +18,9 @@ function App() {
         <AuthProvider>
 
           <div className="headline" >
-          <a href='/'>Розумний помічник кафедри АПЕПС</a>
+          <a href='/'>Розумний помічник кафедри ІПЗЕ</a>
         </div>
-
+        <AuthErrorDisplay/>
           <Router>
               <Routes>
                 <Route path="/" element={<HomePage />} />

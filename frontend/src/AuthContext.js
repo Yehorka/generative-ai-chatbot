@@ -32,6 +32,7 @@ axiosInstance.interceptors.response.use(
             } catch (refreshError) {
                 console.log('Refresh token is invalid, logging out...');
                 isRefreshing = false;
+                localStorage.setItem('error','Помилка авторизації. Будь ласка, спробуйте увійти знову.');
                 handleLogout();
                 return Promise.reject(refreshError);
             }
@@ -80,6 +81,7 @@ export const AuthProvider = ({ children }) => {
     const logout = () => {
         handleLogout();
         setUser(null);
+        localStorage.setItem('error','Ви вийшли з акаунту, для користування програмою увійдіть знову.');
     };
 
     return (

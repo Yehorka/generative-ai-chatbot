@@ -17,11 +17,13 @@ function Register() {
         e.preventDefault();
         try {
             const response = await axiosInstance.post('http://localhost:8090/api/users/register/', userData);
+            console.log('User registered:', response.data);
+
             const response2 = await axiosInstance.post('http://localhost:8090/api/users/token/', userData);
 
             localStorage.setItem('accessToken', response2.data.access);
             localStorage.setItem('refreshToken', response2.data.refresh);
-            console.log('User registered:', response.data);
+            
             console.log('User logged in:', response2.data);
             window.location.href = '/';  
 
@@ -39,14 +41,14 @@ function Register() {
         <div className="screen-1">
         <h2>Реєстрація</h2>
   <div className="email">
-    <label for="email">Login</label>
+    <label for="email">Логін</label>
     <div className="sec-2">
       <ion-icon name="mail-outline"></ion-icon>
       <input type="text" name="username" value={userData.username} onChange={handleChange} placeholder="Username"/>
     </div>
   </div>
   <div className="password">
-    <label for="password">Password</label>
+    <label for="password">Пароль</label>
     <div className="sec-2">
       <ion-icon name="lock-closed-outline"></ion-icon>
       <input className="pas" type="password" name="password" placeholder="············" value={userData.password} onChange={handleChange}/>
@@ -58,14 +60,14 @@ function Register() {
 
   <div className="type">
     <label htmlFor="role">Оберіть роль:</label>
-                <select id="role" name="user_type" value={userData.user_type} onChange={handleChange}>
+                <select id="role" type="user_type" name="user_type" value={userData.user_type} onChange={handleChange}>
                     <option value="student">Студент</option>
                     <option value="teacher">Викладач</option>
                 </select>
                 </div>
   <button className="login">Зареєструватися</button>
   
-  <div className="footer1"><span><a href='/users/login'>Вхід в акаунт</a></span><span>Forgot Password?</span></div>
+  <div className="footer1"><span><a href='/users/login'>Вхід в акаунт</a></span></div>
   
 </div>
 </form>

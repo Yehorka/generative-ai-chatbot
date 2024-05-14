@@ -1,4 +1,6 @@
 from rest_framework.views import APIView
+from rest_framework.generics import ListCreateAPIView, ListAPIView
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404
@@ -23,8 +25,10 @@ def get_chat(chat_id: str, user: User) -> Chat:
         raise Http404
 
 
-def create_chat(user: User) -> Chat:
-    chat = Chat(user=user)
+def create_chat(user: User, name: str, gpt_model: str | None) -> Chat:
+    chat = Chat(user=user, name=name)
+    if gpt_model:
+        chat.gpt_model = gpt_model
     chat.save()
     message_contents = {
         User.UserTypeChoices.STUDENT: STUDENT_SEASTEM_MESSAGE,
@@ -39,41 +43,39 @@ def create_chat(user: User) -> Chat:
     return chat
 
 
-class ChatView(APIView):
-    def get(self, request, chat_id=None):
-        if chat_id:
-            chat = get_chat(chat_id, request.user)
-            serializer = ChatSerilizer(chat)
-            return Response(serializer.data)
+class ChatViewSet(ModelViewSet):
+    model = Chat
+    serializer_class = ChatSerilizer
 
-        chats = Chat.objects.filter(user=request.user)
-        serializer = ChatListSerilizer(chats, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        return Chat.objects.filter(user=self.request.user)
 
-    def post(self, request, chat_id=None):
-        if chat_id:
-            chat = get_chat(chat_id, request.user)
-        else:
-            chat = create_chat(request.user)
+    def list(self, request, *args, **kwargs):
+        self.serializer_class = ChatListSerilizer
+        return super().list(request)
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        chat = create_chat(
+            request.user,
+            serializer.validated_data.get("name"),
+            serializer.validated_data.get("gpt_model"),
+        )
+        serializer = self.get_serializer(instance=chat)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class CreateMessageView(APIView):
+    def post(self, request, chat_id):
+        chat = get_chat(chat_id, request.user)
         message = request.data.get("message")
 
         if not message:
-            return Response({"error": "no message"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                [{"message": "This field is required"}],
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         ai_message = get_ai_response(chat, message)
-
         return Response({"chat_id": chat.id, "message": ai_message.content})
-
-    def put(self, request, chat_id):
-        chat = get_chat(chat_id, request.user)
-        serializer = ChatSerilizer(chat, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, chat_id):
-        chat = get_chat(chat_id, request.user)
-        chat.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)

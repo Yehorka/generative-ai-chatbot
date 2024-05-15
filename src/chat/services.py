@@ -15,7 +15,15 @@ if not OPENAI_API_KEY:
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 
-def get_ai_response(chat: Chat, message_text: str) -> Message:
+def get_ai_response(gpt_model: str, message_list: list[dict['str', 'str']]):
+    completion = client.chat.completions.create(
+        model=gpt_model,
+        messages=message_list,
+    )
+    return completion.choices[0].message.content
+
+
+def get_ai_message(chat: Chat, message_text: str) -> Message:
     Message(chat=chat, role=Message.RoleChoices.USER, content=message_text).save()
 
     messages = Message.objects.filter(chat=chat).order_by("timestamp")
@@ -24,12 +32,8 @@ def get_ai_response(chat: Chat, message_text: str) -> Message:
         {"role": message.role, "content": message.content} for message in messages
     ]
 
-    completion = client.chat.completions.create(
-        model=chat.gpt_model,
-        messages=message_list,
-    )
+    ai_responce = get_ai_response(str(chat.gpt_model), message_list)
 
-    ai_responce = completion.choices[0].message.content
     ai_message = Message(
         chat=chat, role=Message.RoleChoices.ASSISTANT, content=ai_responce
     )

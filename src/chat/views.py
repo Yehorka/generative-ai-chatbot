@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 
 from .models import Chat, Message
 from .serializers import ChatListSerializer, ChatSerializer
-from .services import get_ai_response
+from .services import get_ai_message
 from web_aplication.settings import STUDENT_SEASTEM_MESSAGE, TEACHER_SEASTEM_MESSAGE
 
 User = get_user_model()
@@ -73,5 +73,5 @@ class CreateMessageView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        ai_message = get_ai_response(chat, message)
+        ai_message = get_ai_message(chat, message)
         return Response({"chat_id": chat.id, "message": ai_message.content})

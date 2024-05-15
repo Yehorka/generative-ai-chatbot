@@ -10,6 +10,7 @@ class Chat(models.Model):
     class GPTModelChoices(models.TextChoices):
         GPT_4 = 'gpt-4'
         GPT_3_5_TURBO = 'gpt-3.5-turbo'
+        GPT_4O = 'gpt-4o'
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, related_name='chats', on_delete=models.CASCADE)

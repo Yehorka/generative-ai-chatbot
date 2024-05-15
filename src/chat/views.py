@@ -24,10 +24,8 @@ def get_chat(chat_id: str, user: User) -> Chat:
         raise Http404
 
 
-def create_chat(user: User, name: str, gpt_model: str | None) -> Chat:
-    chat = Chat(user=user, name=name)
-    if gpt_model:
-        chat.gpt_model = gpt_model
+def create_chat(user: User, data: dict) -> Chat:
+    chat = Chat(user=user, **data)
     chat.save()
     message_contents = {
         User.UserTypeChoices.STUDENT: STUDENT_SEASTEM_MESSAGE,
@@ -49,17 +47,16 @@ class ChatViewSet(ModelViewSet):
     def get_queryset(self):
         return Chat.objects.filter(user=self.request.user)
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request):
         self.serializer_class = ChatListSerializer
         return super().list(request)
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         chat = create_chat(
             request.user,
-            serializer.validated_data.get("name"),
-            serializer.validated_data.get("gpt_model"),
+            serializer.validated_data,
         )
         serializer = self.get_serializer(instance=chat)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

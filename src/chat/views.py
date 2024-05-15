@@ -1,5 +1,4 @@
 from rest_framework.views import APIView
-from rest_framework.generics import ListCreateAPIView, ListAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
@@ -9,8 +8,8 @@ from django.contrib.auth import get_user_model
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.core.files.storage import default_storage
 from .models import Chat, Message
-from .serializers import ChatListSerilizer, ChatSerilizer
-from .services import get_ai_response, transcribe_audio
+from .services import get_ai_message, transcribe_audio
+from .serializers import ChatListSerializer, ChatSerializer
 from web_aplication.settings import STUDENT_SEASTEM_MESSAGE, TEACHER_SEASTEM_MESSAGE
 
 User = get_user_model()
@@ -26,10 +25,8 @@ def get_chat(chat_id: str, user: User) -> Chat:
         raise Http404
 
 
-def create_chat(user: User, name: str, gpt_model: str | None) -> Chat:
-    chat = Chat(user=user, name=name)
-    if gpt_model:
-        chat.gpt_model = gpt_model
+def create_chat(user: User, data: dict) -> Chat:
+    chat = Chat(user=user, **data)
     chat.save()
     message_contents = {
         User.UserTypeChoices.STUDENT: STUDENT_SEASTEM_MESSAGE,
@@ -46,41 +43,39 @@ def create_chat(user: User, name: str, gpt_model: str | None) -> Chat:
 
 class ChatViewSet(ModelViewSet):
     model = Chat
-    serializer_class = ChatSerilizer
+    serializer_class = ChatSerializer
 
     def get_queryset(self):
         return Chat.objects.filter(user=self.request.user)
 
-    def list(self, request, *args, **kwargs):
-        self.serializer_class = ChatListSerilizer
+    def list(self, request):
+        self.serializer_class = ChatListSerializer
         return super().list(request)
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         chat = create_chat(
             request.user,
-            serializer.validated_data.get("name"),
-            serializer.validated_data.get("gpt_model"),
+            serializer.validated_data,
         )
         serializer = self.get_serializer(instance=chat)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class CreateMessageView(APIView):
+class MessageCreateView(APIView):
     def post(self, request, chat_id):
-        chat = get_chat(chat_id, request.user)
-        message = request.data.get("message")
-
-        if not message:
+        if not (message := request.data.get("message")):
             return Response(
                 [{"message": "This field is required"}],
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        ai_message = get_ai_response(chat, message)
+        chat = get_chat(chat_id, request.user)
+
+        ai_message = get_ai_message(chat, message)
         return Response({"chat_id": chat.id, "message": ai_message.content})
-    
+
 class VoiceToTextView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
@@ -90,5 +85,3 @@ class VoiceToTextView(APIView):
         
         transcription = transcribe_audio(file_path)
         return Response({'transcription': transcription})
-
-

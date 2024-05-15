@@ -12,15 +12,13 @@ chat_detail = views.ChatViewSet.as_view(
         'delete': 'destroy',
     }
 )
-create_message = views.CreateMessageView.as_view()
+create_message = views.MessageCreateView.as_view()
 
 urlpatterns = [
     path('', chat_list, name='chat-list'),
     path('voice-to-text/', views.VoiceToTextView.as_view(), name='voice-to-text'),
     path('<str:pk>/', chat_detail, name='chat-detail'),
     path('<str:chat_id>/new_message/', create_message, name='create-messagee'),
-    
-    
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

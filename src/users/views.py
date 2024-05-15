@@ -8,13 +8,13 @@ from .serializers import UserSerializer
 User = get_user_model()
 
 
-class CreateUserView(CreateAPIView):
+class UserCreateView(CreateAPIView):
     model = User
     permission_classes = [permissions.AllowAny]
     serializer_class = UserSerializer
 
 
-class RetriveUserView(APIView):
+class UserRetriveView(APIView):
     def get(self, request):
         serialiser = UserSerializer(request.user)
         return Response(serialiser.data)

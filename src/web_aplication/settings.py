@@ -152,11 +152,11 @@ SIMPLE_JWT = {
 
 OPENAI_API_KEY = getenv("OPENAI_API_KEY")
 
-AUTH_USER_MODEL = 'users.CustomUser'
+AUTH_USER_MODEL = 'users.User'
 
 STUDENT_SEASTEM_MESSAGE = (
-    "You are an assistant for student. Answer using ukrainian language. It is improtant not to send answers in russian."
+    "You are assistant for student. Do not send answers in russian."
 )
 TEACHER_SEASTEM_MESSAGE = (
-    "You are an assistant for teacher. Answer using ukrainian language. It is improtant not to send answers in russian."
+    "You are assistant for teacher. Do not send answers in russian."
 )

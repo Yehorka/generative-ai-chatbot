@@ -2,13 +2,13 @@ from rest_framework import serializers
 from .models import Chat, Message
 
 
-class ChatListSerilizer(serializers.ModelSerializer):
+class ChatListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chat
         fields = ['id', 'name']
 
 
-class NotSystemMessageSerializer(serializers.ListSerializer):
+class MessageListSerializer(serializers.ListSerializer):
     def to_representation(self, data):
         data = data.exclude(role=Message.RoleChoices.SYSTEM)
         return super().to_representation(data)
@@ -17,13 +17,12 @@ class NotSystemMessageSerializer(serializers.ListSerializer):
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
-        list_serializer_class = NotSystemMessageSerializer
+        list_serializer_class = MessageListSerializer
         fields = ['role', 'content']
         read_only = ['roel']
         
 
-
-class ChatSerilizer(serializers.ModelSerializer):
+class ChatSerializer(serializers.ModelSerializer):
     messages = MessageSerializer(many=True, read_only=True)
 
     class Meta:

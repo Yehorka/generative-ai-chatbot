@@ -303,6 +303,63 @@ div.chat-ui > div:nth-child(1){
   font-size: 1.1rem;
   transition: 0.5s ease;
 }
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  background: #dde5f4;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+div.modal-overlay > div > input{
+  border-radius: 10px;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+
+    border: 0;
+}
+
+div.modal-overlay > div > button{
+  background-color: #3e4684;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 0.7em;
+  margin-left: 1em;
+  transition: 0.5s ease;
+}
+div.modal-overlay > div > div{
+  position: absolute;
+  cursor: pointer;
+  top: 0%;
+  color: #3e4684;
+  right: 0%;
+  font-size: 1.5em;
+  margin-right: 3px;
+  transition: 0.5s ease;
+}
+
+div.modal-overlay > div > div:hover{
+  color: red;
+
+}
+
+#root > div.App > div.chat-container > div.chat-history-container > div.modal-overlay > div > button:nth-child(3):hover{
+  background-color: green;
+
+}
+
 .screen-1wrap{
   -webkit-user-select: none;
   -moz-user-select: none;

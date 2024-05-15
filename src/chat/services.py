@@ -1,4 +1,5 @@
 from openai import OpenAI
+import openai
 
 from web_aplication.settings import OPENAI_API_KEY
 from .models import Chat, Message
@@ -23,6 +24,8 @@ def get_ai_response(chat: Chat, message_text: str) -> Message:
     message_list = [
         {"role": message.role, "content": message.content} for message in messages
     ]
+    
+
 
     completion = client.chat.completions.create(
         model=chat.gpt_model,
@@ -36,3 +39,9 @@ def get_ai_response(chat: Chat, message_text: str) -> Message:
     ai_message.save()
 
     return ai_message
+
+def transcribe_audio(file_path):
+        with open(file_path, 'rb') as audio:
+            response = client.audio.transcriptions.create(model="whisper-1",
+                file=audio)
+            return response.text

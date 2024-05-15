@@ -6,6 +6,7 @@ import ChatHistory from "./components/ChatHistory";
 import ChatUI from "./components/ChatUI";
 import Profile from "./Profile";
 import DropdownMenu from "./DropdownMenu";
+import Modal from "./Modal";
 
 
 
@@ -22,7 +23,11 @@ function HomePage() {
     const [inputMessage, setInputMessage] = useState("");
     const messagesEndRef = useRef(null);
     const [isAssistantTyping, setIsAssistantTyping] = useState(false);
-  
+    const [chatName, setChatName] = useState("");
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+
+
     useEffect(() => {
       fetchChats();
     }, []);
@@ -38,7 +43,21 @@ function HomePage() {
     useEffect(() => {
       scrollToBottom();
     }, [messages]);
-  
+    
+    const openModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleChatNameSubmit = async (name) => {
+      setIsModalOpen(false);
+      await createNewChat(name);
+    };
+
+
     const scrollToBottom = () => {
       messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
     };
@@ -80,7 +99,7 @@ function HomePage() {
         const delay = 1000 + Math.random() * 100; // Random delay between 1-2 seconds
         setTimeout(async () => {
           try {
-            const response = await axiosInstance.post(`${baseURL}/chat/${selectedChatId}/`, {
+            const response = await axiosInstance.post(`${baseURL}/chat/${selectedChatId}/new_message/`, {
               chat_id: selectedChatId || undefined,
               message: inputMessage,
             });
@@ -111,16 +130,17 @@ function HomePage() {
       }
     };
   
-    const createNewChat = async () => {
+    const createNewChat = async (name) => {
       try {
         const response = await axiosInstance.post(`${baseURL}/chat/`, {
-          message: 'Доброго дня!',
+          name: name,
+          gpt_model: 'gpt-3.5-turbo',
         });
         const newChat = response.data;
-  
+        
         setChats([newChat, ...chats]);
         setSelectedChatId(newChat.id);
-        window.location.reload();
+        //window.location.reload();
       } catch (error) {
         console.error("Error creating a new chat:", error);
       }
@@ -162,9 +182,12 @@ function HomePage() {
 
         <div className="chat-container">
           <div className="chat-history-container">
-            <button className="new-chat-button" onClick={createNewChat}>
-              <strong>+ Створити чат</strong>
-            </button>
+          <button className="new-chat-button" onClick={openModal}>Створити новий чат</button>
+            <Modal 
+                isOpen={isModalOpen} 
+                onClose={closeModal} 
+                onSubmit={handleChatNameSubmit} 
+            />
             <ChatHistory
               chats={chats}
               selectedChatId={selectedChatId}

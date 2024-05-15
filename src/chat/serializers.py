@@ -5,15 +5,23 @@ from .models import Chat, Message
 class ChatListSerilizer(serializers.ModelSerializer):
     class Meta:
         model = Chat
-        fields = ['id']
+        fields = ['id', 'name']
+
+
+class NotSystemMessageSerializer(serializers.ListSerializer):
+    def to_representation(self, data):
+        data = data.exclude(role=Message.RoleChoices.SYSTEM)
+        return super().to_representation(data)
 
 
 class MessageSerializer(serializers.ModelSerializer):
+    file = serializers.ImageField(required=False)
     class Meta:
         model = Message
+        list_serializer_class = NotSystemMessageSerializer
         fields = ['role', 'content']
-        read_only = ['role']
-
+        read_only = ['roel']
+        
 
 
 class ChatSerilizer(serializers.ModelSerializer):
@@ -21,5 +29,5 @@ class ChatSerilizer(serializers.ModelSerializer):
 
     class Meta:
         model = Chat
-        fields = ['id', 'gpt_model', 'messages']
+        fields = ['id', 'name', 'gpt_model', 'messages']
         read_only_fields = ['id', 'messages']

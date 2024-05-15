@@ -45,6 +45,7 @@ const ChatUI = ({
         inputMessage={inputMessage}
         setInputMessage={setInputMessage}
         sendMessage={sendMessage}
+        handleMessageChange={handleMessageChange}
       />
     </div>
   );

@@ -3,8 +3,9 @@ import React, {useState} from "react";
 // import send icon from react-icons/fa
 import { FaPaperPlane } from "react-icons/fa";
 import ChatTemplates from "./ChatTemplates";
+import VoiceRecorder from "../VoiceRecorder";
 
-const ChatInput = ({ inputMessage, setInputMessage, sendMessage }) => {
+const ChatInput = ({ inputMessage, setInputMessage, sendMessage, handleMessageChange }) => {
   return (
     <div className="chat-input">
       <textarea
@@ -20,7 +21,7 @@ const ChatInput = ({ inputMessage, setInputMessage, sendMessage }) => {
           }          
         }}
       />
-      <button><i className="fa-solid fa-plus"></i></button>
+      <VoiceRecorder onTranscription={handleMessageChange} />
       <button onClick={sendMessage} disabled={!inputMessage}>
         <FaPaperPlane/>
       </button>

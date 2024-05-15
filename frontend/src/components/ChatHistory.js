@@ -11,7 +11,7 @@ const ChatHistory = ({ chats, selectedChatId, setSelectedChatId, deleteChat }) =
         }`}
         onClick={() => setSelectedChatId(chat.id)}
       >
-        Чат {chats.length - index}
+        {chat.name}
         {
           selectedChatId === chat.id ? <div className='delete' onClick={() => deleteChat(chat.id)}><i className="fas fa-trash-alt"></i></div> : null
         }

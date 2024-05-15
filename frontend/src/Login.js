@@ -3,7 +3,6 @@ import axiosInstance from './axiosInstance';
 import AuthErrorDisplay from './AuthErrorDisplay';
 
 function Login() {
-    //const axios = useAxios();
     const [userData, setUserData] = useState({
         username: '',
         password: '',
@@ -42,7 +41,6 @@ function Login() {
           } else {
               setErrorMessage('No response from server');
           }
-            // Handle errors here, e.g., show error message
         }
     };
 

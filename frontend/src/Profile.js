@@ -12,9 +12,9 @@ function Profile() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const token = localStorage.getItem('accessToken');  // Отримання токена з localStorage
+                const token = localStorage.getItem('accessToken');  
                 const response = await axiosInstance.get('http://localhost:8090/api/users/');
-                setUser(response.data);  // Збереження даних користувача у стан
+                setUser(response.data);  
                 setLoading(false);
             } catch (error) {
                 setError(error.response ? error.response.data : 'Error fetching user data');
@@ -31,7 +31,7 @@ function Profile() {
         } else if (type === 'teacher') {
             return "Викладач";
         } else {
-            return "Не визначено";  // Текст за замовчуванням, якщо user_type не відповідає очікуваним значенням
+            return "Не визначено"; 
         }
     };
 

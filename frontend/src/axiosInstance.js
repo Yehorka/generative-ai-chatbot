@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import HomePage from './HomePage';  // Це ваша існуюча початкова сторінка
-   // Це новий компонент, який ви створили
+import HomePage from './HomePage';  
 import axios from "axios";
 
 const axiosInstance = axios.create({

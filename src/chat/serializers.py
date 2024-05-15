@@ -15,7 +15,6 @@ class NotSystemMessageSerializer(serializers.ListSerializer):
 
 
 class MessageSerializer(serializers.ModelSerializer):
-    file = serializers.ImageField(required=False)
     class Meta:
         model = Message
         list_serializer_class = NotSystemMessageSerializer

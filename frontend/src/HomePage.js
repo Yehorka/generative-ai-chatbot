@@ -15,7 +15,6 @@ const baseURL =
 
 
 function HomePage() {
-    //const axios = useAxios();
 
     const [chats, setChats] = useState([]);
     const [selectedChatId, setSelectedChatId] = useState(null);
@@ -211,7 +210,7 @@ function HomePage() {
             </ChatUI>
         </div>
         <div className="footer">
-        Помічник може помилятися. Перевіряйте важливу інформацію та дотримуйтесь <a href="#">правил</a>
+        Помічник може помилятися. Перевіряйте важливу інформацію та дотримуйтесь <a href="/rules">правил</a>
         </div>
       </div>
     );

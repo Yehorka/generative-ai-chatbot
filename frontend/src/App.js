@@ -6,6 +6,7 @@ import Register from './Register';
 import { AuthProvider } from './AuthContext';
 import Login from './Login';
 import "./App.css";
+import Rules from './Rules';
 import AuthErrorDisplay from './AuthErrorDisplay';
 
 axiosInstance.defaults.baseURL = "http://localhost:8090/api"
@@ -26,7 +27,7 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/users/register" element={<Register />} />
                 <Route path="/users/login" element={<Login />} />
-
+                <Route path="/rules" element={<Rules/>} />               
               </Routes>
           </Router>
         </AuthProvider>

@@ -4,7 +4,7 @@ import { useAuth } from './AuthContext';
 
 const AuthErrorDisplay = ({error, errorMessage }) => {
 
-    if (!errorMessage && !error) return null; // Якщо помилки немає, нічого не відображаємо
+    if (!errorMessage && !error) return null; 
 
     return (
         <div className="auth-error-message">

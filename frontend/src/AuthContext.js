@@ -6,7 +6,6 @@ const AuthContext = createContext(null);
 export const useAuth = () => useContext(AuthContext);
 
 
-// Функція для виходу з системи
 function handleLogout() {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
@@ -15,7 +14,6 @@ function handleLogout() {
 }
 
 let isRefreshing = false;
-// Встановлюємо інтерцептор для перехоплення помилок
 axiosInstance.interceptors.response.use(
     response => response,
     async error => {
@@ -74,7 +72,7 @@ export const AuthProvider = ({ children }) => {
             setUser({ username });
         } catch (error) {
             console.error('Login failed:', error);
-            throw error;  // Повертаємо помилку вище для обробки
+            throw error;  
         }
     };
 

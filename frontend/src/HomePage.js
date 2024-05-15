@@ -211,7 +211,7 @@ function HomePage() {
             </ChatUI>
         </div>
         <div className="footer">
-        
+        Помічник може помилятися. Перевіряйте важливу інформацію та дотримуйтесь <a href="#">правил</a>
         </div>
       </div>
     );

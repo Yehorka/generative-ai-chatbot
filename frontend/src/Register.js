@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axiosInstance from './axiosInstance';
+import { FaUniregistry } from 'react-icons/fa';
 
 function Register() {
 
@@ -8,13 +9,35 @@ function Register() {
         password: '',
         user_type: ''
     });
+    const handleCheckboxChange = (e) => {
+      setAgree(e.target.checked);
+  };
 
+    const [agree, setAgree] = useState(false);
+    
     const handleChange = (e) => {
         setUserData({ ...userData, [e.target.name]: e.target.value });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!agree) {
+          alert("Ви повинні погодитися з правилами користування чатботом.");
+          return;
+      }
+      if (!userData.username) {
+        alert("Введіть ім'я");
+        return;
+}
+if (!userData.password) {
+  alert("Введіть пароль");
+  return;
+}
+if (!userData.user_type) {
+  alert("Оберіть тип користувача ще раз");
+  return;
+}
+
         try {
             const response = await axiosInstance.post('http://localhost:8090/api/users/register/', userData);
             console.log('User registered:', response.data);
@@ -31,6 +54,7 @@ function Register() {
         } catch (error) {
             console.error('Registration error:', error.response);
             console.error('Registration error:', error.response2);
+            alert("Користувач вже існує!");
             // Handle errors here, e.g., show error message
         }
     };
@@ -65,6 +89,10 @@ function Register() {
                     <option value="teacher">Викладач</option>
                 </select>
                 </div>
+                <div className="terms">
+                        <input type="checkbox" id="agree" checked={agree} onChange={handleCheckboxChange} />
+                        <label htmlFor="agree">Я погоджуюся з <a href='#'>правилами користування чатботом</a></label>
+                    </div>
   <button className="login">Зареєструватися</button>
   
   <div className="footer1"><span><a href='/users/login'>Вхід в акаунт</a></span></div>

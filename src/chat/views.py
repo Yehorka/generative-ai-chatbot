@@ -64,14 +64,13 @@ class ChatViewSet(ModelViewSet):
 
 class MessageCreateView(APIView):
     def post(self, request, chat_id):
-        chat = get_chat(chat_id, request.user)
-        message = request.data.get("message")
-
-        if not message:
+        if not (message := request.data.get("message")):
             return Response(
                 [{"message": "This field is required"}],
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+        chat = get_chat(chat_id, request.user)
 
         ai_message = get_ai_message(chat, message)
         return Response({"chat_id": chat.id, "message": ai_message.content})

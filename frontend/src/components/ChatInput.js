@@ -22,7 +22,7 @@ const ChatInput = ({ inputMessage, setInputMessage, sendMessage, handleMessageCh
         }}
       />
       <VoiceRecorder selectedChat={selectedChat} onTranscription={handleMessageChange} />
-      <button onClick={sendMessage} disabled={!inputMessage}>
+      <button onClick={sendMessage} disabled={!inputMessage || !selectedChat}>
         <FaPaperPlane/>
       </button>
     </div>

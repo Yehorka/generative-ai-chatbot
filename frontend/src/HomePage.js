@@ -148,6 +148,7 @@ function HomePage() {
    const deleteChat = async () => {
       try {
         const response = await axiosInstance.delete(`${baseURL}/chat/${selectedChatId}`);
+        setSelectedChatId(null); 
         fetchChats();
       } catch (error) {
         console.error("Error deleting a chat:", error);

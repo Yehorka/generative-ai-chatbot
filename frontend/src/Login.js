@@ -32,9 +32,9 @@ function Login() {
             localStorage.setItem('refreshToken', response.data.refresh);
             console.log('User logged in:', response.data);
             window.location.href = '/';  
-            // Redirect or handle response data
         } catch (error) {
-            console.error('Login error:', errorMessage);
+            alert("Введено неправильний логін або пароль!");
+            console.error('Login error:', error);
             if (error.response) {
               setErrorMessage(formatErrors(error.response.data) || "Сталась невідома помилка");
               localStorage.removeItem('error');

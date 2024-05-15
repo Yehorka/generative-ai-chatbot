@@ -9,14 +9,14 @@ function ChatTemplates({ onTemplateSelect }) {
     useEffect(() => {
         axiosInstance.get('http://localhost:8090/api/users/')
             .then(response => {
-                const userType = response.data.user_type; // Припускаємо, що відповідь містить 'user_type'
+                const userType = response.data.user_type; 
                 setUserType(userType);
                 
-                // Встановлення шаблонів на основі типу користувача
                 if (userType === 'student') {
                     setTemplates([
                         "Наведи методичні матеріали на тему:",
-                        "Перевір виконання завдання:"
+                        "Допоможи з виконанням завдання:",
+                        "Підготуй конспект на тему"
                     ]);
                     console.log(response.data.user_type)
                 } else if (userType === 'teacher') {

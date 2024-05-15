@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import axiosInstance from './axiosInstance';
 
-const VoiceRecorder = ({ onTranscription }) => {
+const VoiceRecorder = ({ onTranscription, selectedChat }) => {
     const [recording, setRecording] = useState(false);
     const [audioBlob, setAudioBlob] = useState(null);
     const mediaRecorderRef = useRef(null);
@@ -53,8 +53,8 @@ const VoiceRecorder = ({ onTranscription }) => {
 
     return (
         <div>
-            <button onClick={recording ? handleStopRecording : handleStartRecording}>
-                {recording ? 'зупинити' : 'почати'}
+            <button disabled={!selectedChat} className={recording ? 'recording': null} onClick={recording ? handleStopRecording : handleStartRecording}>
+                {recording ? <i class="fa-solid fa-xmark"></i> : <i class="fa-solid fa-microphone"></i>}
             </button>
         </div>
     );

@@ -1,3 +1,16 @@
+:root{
+  --conic-gradient: conic-gradient(
+    #FF2E2E,
+    #FF831E,
+    #FCFF51,
+    #58FF57,
+    #575FFF,
+    #D257FF,
+    #FF57E5,
+    #FF1556
+  );
+}
+
 .App {
   display: flex;
   justify-content: center;
@@ -142,6 +155,7 @@ div.chat-ui > div:nth-child(1){
   display: flex;
   padding: 1rem;
   border-top: 1px solid #ddd;
+  z-index: 1;
 }
 
 .chat-input input {
@@ -475,6 +489,55 @@ select{
   padding: 1rem 1rem;
   cursor: pointer;
 }
+
+#root > div.App > div.chat-container > div.chat-ui > div.chat-input > div > button{
+  height: 100%;
+  transition: transform .3s ease;
+}
+
+.recording{
+  border-radius: 1em;
+  --borderWidth: 2px;
+  position: relative;
+  background-color: #3e4684;
+  cursor: pointer;
+  padding: 0;
+  height: 100%;
+  transition:0.5s ease;
+  }
+
+.recording:after {
+  transition:0.5s ease;
+  content: '';
+  position: absolute;
+  top: calc(-1 * var(--borderWidth));
+  left: calc(-1 * var(--borderWidth));
+  height: calc(100% + var(--borderWidth) * 2);
+  width: calc(100% + var(--borderWidth) * 2);
+  background: linear-gradient(60deg, #f7953300, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82);
+  border-radius: calc(10 * var(--borderWidth));
+  z-index: -1;
+  animation: animatedgradient 3s ease alternate infinite;
+  background-size: 300% 300%;
+}
+
+@keyframes animatedgradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+
+
+  
+  
+
 /* Add this media query */
 @media screen and (max-width: 768px) {
   .App {

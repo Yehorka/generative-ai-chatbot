@@ -5,7 +5,7 @@ import { FaPaperPlane } from "react-icons/fa";
 import ChatTemplates from "./ChatTemplates";
 import VoiceRecorder from "../VoiceRecorder";
 
-const ChatInput = ({ inputMessage, setInputMessage, sendMessage, handleMessageChange }) => {
+const ChatInput = ({ inputMessage, setInputMessage, sendMessage, handleMessageChange, selectedChat }) => {
   return (
     <div className="chat-input">
       <textarea
@@ -21,7 +21,7 @@ const ChatInput = ({ inputMessage, setInputMessage, sendMessage, handleMessageCh
           }          
         }}
       />
-      <VoiceRecorder onTranscription={handleMessageChange} />
+      <VoiceRecorder selectedChat={selectedChat} onTranscription={handleMessageChange} />
       <button onClick={sendMessage} disabled={!inputMessage}>
         <FaPaperPlane/>
       </button>

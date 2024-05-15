@@ -62,7 +62,7 @@ class ChatViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class CreateMessageView(APIView):
+class MessageCreateView(APIView):
     def post(self, request, chat_id):
         chat = get_chat(chat_id, request.user)
         message = request.data.get("message")

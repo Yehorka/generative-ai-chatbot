@@ -12,7 +12,7 @@ chat_detail = views.ChatViewSet.as_view(
         'delete': 'destroy',
     }
 )
-create_message = views.CreateMessageView.as_view()
+create_message = views.MessageCreateView.as_view()
 
 urlpatterns = [
     path('', chat_list, name='chat-list'),

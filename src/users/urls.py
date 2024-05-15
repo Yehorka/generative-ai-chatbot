@@ -8,8 +8,8 @@ from rest_framework_simplejwt.views import (
 from . import views
 
 urlpatterns = [
-    path('', views.RetriveUserView.as_view()),
-    path('register/', views.CreateUserView.as_view()),
+    path('', views.UserRetriveView.as_view()),
+    path('register/', views.UserCreateView.as_view()),
     path('token/', TokenObtainPairView.as_view()),
     path('token/refresh/', TokenRefreshView.as_view()),
 ]

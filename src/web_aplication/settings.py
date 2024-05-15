@@ -136,7 +136,7 @@ REST_FRAMEWORK = {
 
 OPENAI_API_KEY = getenv("OPENAI_API_KEY")
 
-AUTH_USER_MODEL = 'users.CustomUser'
+AUTH_USER_MODEL = 'users.User'
 
 STUDENT_SEASTEM_MESSAGE = (
     "You are assistant for student. Do not send answers in russian."

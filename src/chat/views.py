@@ -1,5 +1,4 @@
 from rest_framework.views import APIView
-from rest_framework.generics import ListCreateAPIView, ListAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
@@ -8,7 +7,7 @@ from django.core.validators import ValidationError
 from django.contrib.auth import get_user_model
 
 from .models import Chat, Message
-from .serializers import ChatListSerilizer, ChatSerilizer
+from .serializers import ChatListSerializer, ChatSerializer
 from .services import get_ai_response
 from web_aplication.settings import STUDENT_SEASTEM_MESSAGE, TEACHER_SEASTEM_MESSAGE
 
@@ -45,13 +44,13 @@ def create_chat(user: User, name: str, gpt_model: str | None) -> Chat:
 
 class ChatViewSet(ModelViewSet):
     model = Chat
-    serializer_class = ChatSerilizer
+    serializer_class = ChatSerializer
 
     def get_queryset(self):
         return Chat.objects.filter(user=self.request.user)
 
     def list(self, request, *args, **kwargs):
-        self.serializer_class = ChatListSerilizer
+        self.serializer_class = ChatListSerializer
         return super().list(request)
 
     def create(self, request, *args, **kwargs):

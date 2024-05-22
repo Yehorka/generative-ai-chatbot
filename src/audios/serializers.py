@@ -9,3 +9,7 @@ class TextToSpeechSerializer(serializers.Serializer):
     )
     voice = serializers.ChoiceField(choices=VOICE_CHOICES, default=VOICE_CHOICES[0])
     input = serializers.CharField()
+
+
+class SpeechToTextSerializer(serializers.Serializer):
+    file = serializers.FileField()

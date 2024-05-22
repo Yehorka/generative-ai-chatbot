@@ -134,6 +134,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
 }
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 OPENAI_API_KEY = getenv("OPENAI_API_KEY")
 
 AUTH_USER_MODEL = 'users.User'

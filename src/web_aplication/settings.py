@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'chat.apps.ChatConfig',
     'users.apps.UsersConfig',
+    'audios.apps.AudiosConfig',
 ]
 
 MIDDLEWARE = [

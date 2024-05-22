@@ -1,6 +1,6 @@
 from openai import OpenAI
 
-from web_aplication.settings import OPENAI_API_KEY
+from django.conf import settings
 from .models import Chat, Message
 
 
@@ -8,14 +8,14 @@ class NoAPIKeyException(Exception):
     pass
 
 
-if not OPENAI_API_KEY:
-    raise NoAPIKeyException()
-
-
-client = OpenAI(api_key=OPENAI_API_KEY)
+def get_client(api_key=settings.OPENAI_API_KEY):
+    if not api_key:
+        raise NoAPIKeyException()
+    return OpenAI(api_key=api_key)
 
 
 def get_ai_response(gpt_model: str, message_list: list[dict['str', 'str']]):
+    client = get_client()
     completion = client.chat.completions.create(
         model=gpt_model,
         messages=message_list,

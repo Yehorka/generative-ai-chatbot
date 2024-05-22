@@ -16,5 +16,5 @@ class UserCreateView(CreateAPIView):
 
 class UserRetriveView(APIView):
     def get(self, request):
-        serialiser = UserSerializer(request.user)
-        return Response(serialiser.data)
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)

@@ -2,7 +2,7 @@ from pathlib import Path
 
 from chat.services import get_client
 
-MODLE_CHOICES = ('tts-1', 'tts-1-hd')
+TTS_MODEL_CHOICES = ('tts-1', 'tts-1-hd')
 VOICE_CHOICES = ('alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer')
 
 

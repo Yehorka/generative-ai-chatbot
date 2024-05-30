@@ -13,7 +13,7 @@ function Profile() {
         const fetchData = async () => {
             try {
                 const token = localStorage.getItem('accessToken');  
-                const response = await axiosInstance.get('http://localhost:8090/api/users/');
+                const response = await axiosInstance.get('http://127.0.0.1:8090/api/users/');
                 setUser(response.data);  
                 setLoading(false);
             } catch (error) {

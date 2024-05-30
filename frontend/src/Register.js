@@ -39,10 +39,10 @@ if (!userData.user_type) {
 }
 
         try {
-            const response = await axiosInstance.post('http://localhost:8090/api/users/register/', userData);
+            const response = await axiosInstance.post('http://127.0.0.1:8090/api/users/register/', userData);
             console.log('User registered:', response.data);
 
-            const response2 = await axiosInstance.post('http://localhost:8090/api/users/token/', userData);
+            const response2 = await axiosInstance.post('http://127.0.0.1:8090/api/users/token/', userData);
 
             localStorage.setItem('accessToken', response2.data.access);
             localStorage.setItem('refreshToken', response2.data.refresh);

@@ -38,7 +38,7 @@ const VoiceRecorder = ({ onTranscription, selectedChat }) => {
         formData.append('audio', blob, 'recording.wav');
 
         try {
-            const response = await axiosInstance.post('http://localhost:8090/api/chat/voice-to-text/', formData, {
+            const response = await axiosInstance.post('http://127.0.0.1:8090/api/chat/voice-to-text/', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

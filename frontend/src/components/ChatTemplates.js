@@ -7,7 +7,7 @@ function ChatTemplates({ onTemplateSelect }) {
     const [templates, setTemplates] = useState([]);
 
     useEffect(() => {
-        axiosInstance.get('http://localhost:8090/api/users/')
+        axiosInstance.get('http://127.0.0.1:8090/api/users/')
             .then(response => {
                 const userType = response.data.user_type; 
                 setUserType(userType);

@@ -11,7 +11,7 @@ import Modal from "./Modal";
 
 
 const baseURL =
-  process.env.REACT_APP_BACKEND_URL || "http://localhost:8090/api";
+  process.env.REACT_APP_BACKEND_URL || "http://127.0.0.1:8090/api";
 
 
 function HomePage() {

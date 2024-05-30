@@ -16,6 +16,7 @@ create_message = views.MessageCreateView.as_view()
 
 urlpatterns = [
     path('', chat_list, name='chat-list'),
+    path('voice-to-text/', views.VoiceToTextView.as_view(), name='voice-to-text'),
     path('<str:pk>/', chat_detail, name='chat-detail'),
     path('<str:chat_id>/new_message/', create_message, name='create-messagee'),
 ]

@@ -29,3 +29,9 @@ def get_ai_message(chat: Chat, message_text: str) -> Message:
     ai_message.save()
 
     return ai_message
+
+
+def transcribe_audio(file_path):
+    with open(file_path, 'rb') as audio:
+        response = client.audio.transcriptions.create(model="whisper-1", file=audio)
+        return response.text

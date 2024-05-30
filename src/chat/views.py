@@ -7,10 +7,19 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from web_aplication.settings import STUDENT_SEASTEM_MESSAGE, TEACHER_SEASTEM_MESSAGE
+from rest_framework.response import Response
+from rest_framework import status
+from django.http import Http404
+from django.core.validators import ValidationError
+from django.contrib.auth import get_user_model
+from rest_framework.parsers import MultiPartParser, FormParser
+from django.core.files.storage import default_storage
 
 from .models import Chat, Message
+from .services import get_ai_message, transcribe_audio
 from .serializers import ChatListSerializer, ChatSerializer
 from .services import get_ai_message
+
 
 User = get_user_model()
 
@@ -80,3 +89,13 @@ class MessageCreateView(APIView):
             )
 
         return Response({"chat_id": chat.id, "message": ai_message.content})
+
+class VoiceToTextView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
+    def post(self, request, *args, **kwargs):
+        audio_file = request.FILES['audio']
+        file_path = default_storage.save('tmp/recording.wav', audio_file)
+        
+        transcription = transcribe_audio(file_path)
+        return Response({'transcription': transcription})

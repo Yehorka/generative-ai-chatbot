@@ -45,6 +45,8 @@ INSTALLED_APPS = [
 
     'chat.apps.ChatConfig',
     'users.apps.UsersConfig',
+    'audios.apps.AudiosConfig',
+    'apis.apps.ApisConfig',
 ]
 
 MIDDLEWARE = [
@@ -142,6 +144,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
 }
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),

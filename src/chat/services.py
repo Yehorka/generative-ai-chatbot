@@ -1,21 +1,10 @@
-from openai import OpenAI
+from apis.services import get_openai_client
 
-from web_aplication.settings import OPENAI_API_KEY
 from .models import Chat, Message
 
 
-class NoAPIKeyException(Exception):
-    pass
-
-
-if not OPENAI_API_KEY:
-    raise NoAPIKeyException()
-
-
-client = OpenAI(api_key=OPENAI_API_KEY)
-
-
 def get_ai_response(gpt_model: str, message_list: list[dict['str', 'str']]):
+    client = get_openai_client()
     completion = client.chat.completions.create(
         model=gpt_model,
         messages=message_list,

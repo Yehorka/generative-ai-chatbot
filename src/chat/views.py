@@ -1,15 +1,16 @@
+from apis.services import NoAPIKeyException
+from django.contrib.auth import get_user_model
+from django.core.validators import ValidationError
+from django.http import Http404
+from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.response import Response
-from rest_framework import status
-from django.http import Http404
-from django.core.validators import ValidationError
-from django.contrib.auth import get_user_model
+from web_aplication.settings import STUDENT_SEASTEM_MESSAGE, TEACHER_SEASTEM_MESSAGE
 
 from .models import Chat, Message
 from .serializers import ChatListSerializer, ChatSerializer
 from .services import get_ai_message
-from web_aplication.settings import STUDENT_SEASTEM_MESSAGE, TEACHER_SEASTEM_MESSAGE
 
 User = get_user_model()
 
@@ -71,6 +72,11 @@ class MessageCreateView(APIView):
             )
 
         chat = get_chat(chat_id, request.user)
+        try:
+            ai_message = get_ai_message(chat, message)
+        except NoAPIKeyException as e:
+            return Response(
+                {"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
-        ai_message = get_ai_message(chat, message)
         return Response({"chat_id": chat.id, "message": ai_message.content})

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './HomePage';  
 import axiosInstance from "./axiosInstance";
 import Register from './Register';
@@ -27,7 +27,8 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/users/register" element={<Register />} />
                 <Route path="/users/login" element={<Login />} />
-                <Route path="/rules" element={<Rules/>} />               
+                <Route path="/rules" element={<Rules/>} />        
+                <Route path="*" element={<Navigate to="/" />} />      
               </Routes>
           </Router>
         </AuthProvider>

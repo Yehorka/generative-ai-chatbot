@@ -17,6 +17,7 @@ api_key_detail = views.APIKeyViewSet.as_view(
 urlpatterns = [
     path('keys/', api_key_list, name='api-key-list'),
     path('keys/<int:pk>/', api_key_detail, name='api-key-detail'),
+    path('check-admin/', views.check_admin, name='check-admin'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

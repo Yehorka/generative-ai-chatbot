@@ -1,11 +1,17 @@
 from django.core.exceptions import ObjectDoesNotExist
 from openai import AuthenticationError, OpenAI
+from rest_framework import status
+from rest_framework.decorators import api_view
+from django.shortcuts import redirect
 
 from .models import APIKey
 
 
 class NoAPIKeyException(Exception):
-    pass
+    status_code = status.HTTP_404_NOT_FOUND
+    default_detail = 'API key does not exist.'
+    default_code = 'no_api_key'
+
 
 
 def get_api_key(name: str) -> str:

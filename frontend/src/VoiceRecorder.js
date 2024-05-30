@@ -17,7 +17,7 @@ const VoiceRecorder = ({ onTranscription, selectedChat }) => {
             };
 
             mediaRecorderRef.current.onstop = () => {
-                const blob = new Blob(chunks.current, { type: 'audio/wav' });
+                const blob = new Blob(chunks.current, { type: 'audio/mp3' });
                 setAudioBlob(blob);
                 chunks.current = [];
                 handleSendAudio(blob);
@@ -35,10 +35,10 @@ const VoiceRecorder = ({ onTranscription, selectedChat }) => {
 
     const handleSendAudio = async (blob) => {
         const formData = new FormData();
-        formData.append('audio', blob, 'recording.wav');
+        formData.append('file', blob, 'recording.mp3');
 
         try {
-            const response = await axiosInstance.post('http://127.0.0.1:8090/api/chat/voice-to-text/', formData, {
+            const response = await axiosInstance.post('http://127.0.0.1:8090/api/audios/speech-to-text/', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

@@ -25,10 +25,18 @@ function HomePage() {
     const [chatName, setChatName] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-
-
+    useEffect(async () => {
+      axiosInstance.get('/apis/keys/');
+      const response2 = await axiosInstance.get('/users/');
+      console.log(response2.data.username);
+      if (response2.data.user_type == "" && response2.data.username == 'admin') {
+          window.location.href = '/management/';  
+        }
+    },[]);
     useEffect(() => {
+
       fetchChats();
+
     }, []);
   
     useEffect(() => {

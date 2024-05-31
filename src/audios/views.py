@@ -1,11 +1,13 @@
+from apis.services import NoAPIKeyException
 from django.conf import settings
-from django.http import FileResponse
-from rest_framework.decorators import api_view
 from django.core.files.storage import default_storage
+from django.http import FileResponse
+from rest_framework import status
+from rest_framework.decorators import api_view
 from rest_framework.views import Response
 
-from .services import text_to_speech, speech_to_text
-from .serializers import TextToSpeechSerializer, SpeechToTextSerializer
+from .serializers import SpeechToTextSerializer, TextToSpeechSerializer
+from .services import speech_to_text, text_to_speech
 
 
 @api_view(['POST'])
@@ -17,8 +19,12 @@ def text_to_speech_view(request):
         settings.MEDIA_ROOT / f"audios/{request.user.id}/text_to_speech/audio.mp3"
     )
     file_path.parent.mkdir(exist_ok=True, parents=True)
-
-    text_to_speech(file_path, serializer.validated_data)
+    try:
+        text_to_speech(file_path, serializer.validated_data)
+    except NoAPIKeyException as e:
+        return Response(
+                {"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     return FileResponse(open(file_path, 'rb'))
 
@@ -39,5 +45,11 @@ def speech_to_text_view(request):
         default_storage.delete(file_path)
     default_storage.save(file_path, file)
 
-    text = speech_to_text(file_path)
+    try:
+        text = speech_to_text(file_path)
+    except NoAPIKeyException as e:
+        return Response(
+                {"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
     return Response({'text': text})

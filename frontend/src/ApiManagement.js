@@ -37,7 +37,7 @@ const ApiManagement = () => {
       e.preventDefault();
   
       try {
-        const response = await axiosInstance.post('/apis/keys/', { key: apiKey, name: name });
+        const response = await axiosInstance.post('/apis/keys/', { key: apiKey, name: "OPENAI_API_KEY" });
   
         if (response.status === 201) {
           alert('API Key successfully saved!');
@@ -90,15 +90,6 @@ const ApiManagement = () => {
       ) : (
       <form onSubmit={handleSubmit}>
               <h1>Введіть ключ API</h1>
-      <label>
-          Назва ключа API:
-          <input 
-            type="text" 
-            value={name} 
-            onChange={(e) => setName(e.target.value)} 
-            required 
-          />
-        </label>
         <label>
           Ключ API:
           <input 

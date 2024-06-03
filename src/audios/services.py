@@ -18,4 +18,5 @@ def speech_to_text(file_path: Path) -> str:
     transcription = client.audio.transcriptions.create(
         model="whisper-1", file=audio_file
     )
+    audio_file.close()
     return transcription.text

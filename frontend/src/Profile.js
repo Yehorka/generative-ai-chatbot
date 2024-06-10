@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axiosInstance from "./axiosInstance";
 import "./App.css";
 import { useAuth } from './AuthContext';
+import { API_URL } from './config';
 
 function Profile() {
     const { logout } = useAuth();    
@@ -13,7 +14,7 @@ function Profile() {
         const fetchData = async () => {
             try {
                 const token = localStorage.getItem('accessToken');  
-                const response = await axiosInstance.get('http://127.0.0.1:8090/api/users/');
+                const response = await axiosInstance.get(`/users/`);
                 setUser(response.data);  
                 setLoading(false);
             } catch (error) {

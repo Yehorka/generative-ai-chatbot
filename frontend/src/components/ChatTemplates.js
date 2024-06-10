@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import axiosInstance from '../axiosInstance';
+import { API_URL } from '../config';
 
 function ChatTemplates({ onTemplateSelect }) {
 
@@ -7,7 +8,7 @@ function ChatTemplates({ onTemplateSelect }) {
     const [templates, setTemplates] = useState([]);
 
     useEffect(() => {
-        axiosInstance.get('http://127.0.0.1:8090/api/users/')
+        axiosInstance.get(`/users/`)
             .then(response => {
                 const userType = response.data.user_type; 
                 setUserType(userType);

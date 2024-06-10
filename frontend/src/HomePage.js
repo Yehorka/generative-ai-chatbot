@@ -7,11 +7,8 @@ import ChatUI from "./components/ChatUI";
 import Profile from "./Profile";
 import DropdownMenu from "./DropdownMenu";
 import Modal from "./Modal";
+import { API_URL } from './config';
 
-
-
-const baseURL =
-  process.env.REACT_APP_BACKEND_URL || "http://127.0.0.1:8090/api";
 
 
 function HomePage() {
@@ -28,6 +25,7 @@ function HomePage() {
     useEffect(async () => {
       axiosInstance.get('/apis/keys/');
       const response2 = await axiosInstance.get('/users/');
+      console.log('API URL:', API_URL); // Add this to verify
       console.log(response2.data.username);
       if (response2.data.user_type == "" && response2.data.username == 'admin') {
           window.location.href = '/management/';  
@@ -72,7 +70,7 @@ function HomePage() {
     const fetchChats = async () => {
       try {
         const accessToken = localStorage.getItem('accessToken'); 
-        const response = await axiosInstance.get(`${baseURL}/chat/`);
+        const response = await axiosInstance.get(`/chat/`);
         setChats(response.data);
       } catch (error) {
         console.error("Error fetching chats:", error);
@@ -81,7 +79,7 @@ function HomePage() {
   
     const fetchMessages = async (chatId) => {
       try {
-        const response = await axiosInstance.get(`${baseURL}/chat/${chatId}/`);
+        const response = await axiosInstance.get(`/chat/${chatId}/`);
         setMessages(response.data.messages);
       } catch (error) {
         console.error("Error fetching messages:", error);
@@ -105,7 +103,7 @@ function HomePage() {
         const delay = 1000 + Math.random() * 100;
         setTimeout(async () => {
           try {
-            const response = await axiosInstance.post(`${baseURL}/chat/${selectedChatId}/new_message/`, {
+            const response = await axiosInstance.post(`/chat/${selectedChatId}/new_message/`, {
               chat_id: selectedChatId || undefined,
               message: inputMessage,
             });
@@ -137,7 +135,7 @@ function HomePage() {
   
     const createNewChat = async (name) => {
       try {
-        const response = await axiosInstance.post(`${baseURL}/chat/`, {
+        const response = await axiosInstance.post(`/chat/`, {
           name: name,
           gpt_model: 'gpt-3.5-turbo',
         });
@@ -152,7 +150,7 @@ function HomePage() {
 
    const deleteChat = async () => {
       try {
-        const response = await axiosInstance.delete(`${baseURL}/chat/${selectedChatId}`);
+        const response = await axiosInstance.delete(`/chat/${selectedChatId}`);
         setSelectedChatId(null); 
         fetchChats();
       } catch (error) {
@@ -216,7 +214,7 @@ function HomePage() {
             </ChatUI>
         </div>
         <div className="footer">
-        Помічник може помилятися. Перевіряйте важливу інформацію та дотримуйтесь <a href="/rules">правил</a>
+        Помічник може помилятися. Перевіряйте важливу інформацію та дотримуйтесь  <a href="/rules">правил</a>
         </div>
       </div>
     );

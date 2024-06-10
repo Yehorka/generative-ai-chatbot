@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import axiosInstance from './axiosInstance';
+import { API_URL } from './config';
 
 const VoiceRecorder = ({ onTranscription, selectedChat }) => {
     const [recording, setRecording] = useState(false);
@@ -38,7 +39,7 @@ const VoiceRecorder = ({ onTranscription, selectedChat }) => {
         formData.append('file', blob, 'recording.mp3');
 
         try {
-            const response = await axiosInstance.post('http://127.0.0.1:8090/api/audios/speech-to-text/', formData, {
+            const response = await axiosInstance.post(`/audios/speech-to-text/`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

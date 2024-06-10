@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axiosInstance from './axiosInstance';
-
-const baseURL =
-  process.env.REACT_APP_BACKEND_URL;
+import { API_URL } from './config';
 
 const modelInfo = {
     "gpt-3.5-turbo": "GPT-3.5 Turbo - Це оптимізована версія GPT-3.5, яка краще підходить для загальних освітніх завдань, таких як створення навчальних матеріалів та відповідь на питання студентів.",
@@ -17,7 +15,7 @@ const DropdownMenu = ({selectedChatId }) => {
 
     const fetchModel = async () => {
         try {
-            const response = await axiosInstance.get(`${baseURL}/chat/${selectedChatId}/`);
+            const response = await axiosInstance.get(`/chat/${selectedChatId}/`);
             setSelectedModel(response.data.gpt_model);  
             setLoading(false);
         } catch (error) {
@@ -28,7 +26,7 @@ const DropdownMenu = ({selectedChatId }) => {
 
     const updateModel = async (model) => {
         try {
-            await axiosInstance.patch(`${baseURL}/chat/${selectedChatId}/`, { gpt_model: model });
+            await axiosInstance.patch(`/chat/${selectedChatId}/`, { gpt_model: model });
             console.log('Model updated successfully');
         } catch (error) {
             console.error('Failed to update model', error);

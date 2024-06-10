@@ -9,12 +9,8 @@ import "./App.css";
 import Rules from './Rules';
 import AuthErrorDisplay from './AuthErrorDisplay';
 import ApiManagement from './ApiManagement'
+import { API_URL } from './config';
 
-axiosInstance.defaults.baseURL = "http://127.0.0.1:8090/api"
-
-
-const baseURL =
-  process.env.REACT_APP_BACKEND_URL || "http://127.0.0.1:8090/api";
 function App() {
       return (
         <AuthProvider>

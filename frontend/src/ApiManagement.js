@@ -40,14 +40,15 @@ const ApiManagement = () => {
         const response = await axiosInstance.post('/apis/keys/', { key: apiKey, name: "OPENAI_API_KEY" });
   
         if (response.status === 201) {
-          alert('API Key successfully saved!');
+          window.location.reload()
+          alert('Ключ API успішно додано!');
           setApiKey(''); 
         } else {
-          alert('Failed to save API Key.');
+          alert('Помилка додавання ключа API.');
         }
       } catch (error) {
         console.error('Error saving API Key:', error);
-        alert('An error occurred while saving the API Key.');
+        alert('Помилка!.');
       }
     };
     const handleDelete = async () => {
@@ -56,14 +57,14 @@ const ApiManagement = () => {
             const response = await axiosInstance.delete(`/apis/keys/${existingApiKey.id}/`);
     
             if (response.status === 204) {
-              alert('API Key successfully deleted!');
+              alert('Ключ API видалено!');
               setExistingApiKey(null);
             } else {
-              alert('Failed to delete API Key.');
+              alert('Помилка!.');
             }
           } catch (error) {
             console.error('Error deleting API Key:', error);
-            alert('An error occurred while deleting the API Key.');
+            alert('Помилка');
           }
         }
       };

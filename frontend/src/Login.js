@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axiosInstance from './axiosInstance';
 import AuthErrorDisplay from './AuthErrorDisplay';
+import { API_URL } from './config';
 
 function Login() {
     const [userData, setUserData] = useState({
@@ -26,7 +27,7 @@ function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axiosInstance.post('http://127.0.0.1:8090/api/users/token/', userData);
+            const response = await axiosInstance.post(`/users/token/`, userData);
 
             localStorage.setItem('accessToken', response.data.access);
             localStorage.setItem('refreshToken', response.data.refresh);

@@ -44,7 +44,7 @@ const VoiceRecorder = ({ onTranscription, selectedChat }) => {
                 }
             });
 
-            const transcription = response.data.transcription;
+            const transcription = response.data.text;
             onTranscription(transcription);
         } catch (error) {
             console.error('Error sending audio file:', error);

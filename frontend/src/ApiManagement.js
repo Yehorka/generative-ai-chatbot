@@ -83,12 +83,17 @@ const ApiManagement = () => {
     <div className='flexmanagement'>
       {existingApiKey ? (
         <div>
+          <h1>Для користування чатботом, внизу має бути введено ключ API, отримати його можна за <a href='https://platform.openai.com/api-keys'>посиланням</a></h1>
+          <h2>Якщо ключа за посиланням немає, його потрібно створити за тим самим <a href='https://platform.openai.com/api-keys'>посиланням</a></h2>
           <p>Назва ключа API: {existingApiKey.name}</p>
           <p>Ключ API введено: {existingApiKey.key}</p>
           <button onClick={handleDelete}>Видалити ключ API </button>
+          <p>Після введення ключа API можна вийти з акаунта.</p>
         </div>
       ) : (
       <form onSubmit={handleSubmit}>
+        <h1>Для користування чатботом, внизу має бути введено ключ API, отримати його можна за <a href='https://platform.openai.com/api-keys'>посиланням</a></h1>
+          <h2>Якщо ключа за посиланням немає, його потрібно створити за тим самим <a href='https://platform.openai.com/api-keys'>посиланням</a></h2>
               <h1>Введіть ключ API</h1>
         <label>
           Ключ API:

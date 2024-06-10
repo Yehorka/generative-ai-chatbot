@@ -48,7 +48,7 @@ if (!userData.user_type) {
             localStorage.setItem('refreshToken', response2.data.refresh);
             
             console.log('User logged in:', response2.data);
-            window.location.href = '/';  
+            window.location.href = '/rules';  
 
         } catch (error) {
             console.error('Registration error:', error.response);

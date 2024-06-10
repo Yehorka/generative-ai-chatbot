@@ -89,7 +89,6 @@ function HomePage() {
     };
   
     const sendMessage = async () => {
-      // Update the local state before sending the message to the backend
       setMessages([
         ...messages,
         {
@@ -102,8 +101,8 @@ function HomePage() {
       setIsAssistantTyping(true);
   
       try {
-        // Simulate a delay for the typewriting effect
-        const delay = 1000 + Math.random() * 100; // Random delay between 1-2 seconds
+
+        const delay = 1000 + Math.random() * 100;
         setTimeout(async () => {
           try {
             const response = await axiosInstance.post(`${baseURL}/chat/${selectedChatId}/new_message/`, {
@@ -111,7 +110,6 @@ function HomePage() {
               message: inputMessage,
             });
   
-            // If there was no selected chat, set the selected chat to the newly created one
             if (!selectedChatId) {
               setSelectedChatId(response.data.chat_id);
               setChats([{ id: response.data.chat_id }, ...chats]);
@@ -147,7 +145,6 @@ function HomePage() {
         
         setChats([newChat, ...chats]);
         setSelectedChatId(newChat.id);
-        //window.location.reload();
       } catch (error) {
         console.error("Error creating a new chat:", error);
       }
@@ -181,7 +178,7 @@ function HomePage() {
         .join("");
     }
     const handleMessageChange = (message) => {
-      setInputMessage(message);  // Функція для оновлення повідомлення
+      setInputMessage(message);  
     };
   
     return (

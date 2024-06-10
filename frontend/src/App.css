@@ -280,7 +280,6 @@ div.chat-ui > div:nth-child(1){
     width: auto;       /* Ширина елементу розтягується на всю ширину вікна */
     background: rgb(219 228 246); /* Чорний колір з прозорістю 25% */
     border-bottom-left-radius: 10px; /* Скруглені кути */
-    padding: 1%;    /* Внутрішні відступи для контенту всередині контейнера */
     box-sizing: border-box; /* Допомагає управляти розмірами елемента, включаючи padding і border */
 }
 .profile-flex{
@@ -331,9 +330,10 @@ div.chat-ui > div:nth-child(1){
 }
 
 .flexmanagement{
+  padding: 2%;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .model-info {
@@ -551,7 +551,9 @@ select{
 }
 
 
-
+#root > div.flexmanagement > div.profile-square > div{
+  padding: 0;
+}
   
   
 

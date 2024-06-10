@@ -1,6 +1,5 @@
 import React, {useState} from "react";
 
-// import send icon from react-icons/fa
 import { FaPaperPlane } from "react-icons/fa";
 import ChatTemplates from "./ChatTemplates";
 import VoiceRecorder from "../VoiceRecorder";

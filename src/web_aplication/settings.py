@@ -154,6 +154,8 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME_LATE_USER': timedelta(days=30),
 }
 
+ALLOWED_HOSTS = ['*']
+
 OPENAI_API_KEY = getenv("OPENAI_API_KEY")
 
 AUTH_USER_MODEL = 'users.User'

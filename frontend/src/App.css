@@ -325,9 +325,6 @@ div.chat-ui > div:nth-child(1){
   align-items: center;
   z-index: 10;
 }
-.profile-info{
-  margin-right: 2em;
-}
 
 .flexmanagement{
   padding: 2%;

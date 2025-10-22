@@ -12,6 +12,11 @@ class Chat(models.Model):
         GPT_3_5_TURBO = 'gpt-3.5-turbo'
         GPT_4O = 'gpt-4o'
 
+    PLATFORM_CHOICES = [
+        ("openai", "OpenAI"),
+        ("gemini", "Gemini"),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, related_name='chats', on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
@@ -20,6 +25,15 @@ class Chat(models.Model):
         max_length=20,
         choices=GPTModelChoices.choices,
         default=GPTModelChoices.GPT_3_5_TURBO,
+    )
+    platform = models.CharField(
+        max_length=10,
+        choices=PLATFORM_CHOICES,
+        default="openai",
+    )
+    model_name = models.CharField(
+        max_length=50,
+        default="gpt-4o-mini",
     )
 
     class Meta:

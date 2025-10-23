@@ -8,9 +8,9 @@ User = get_user_model()
 
 class Chat(models.Model):
     class GPTModelChoices(models.TextChoices):
-        GPT_4 = 'gpt-4'
-        GPT_3_5_TURBO = 'gpt-3.5-turbo'
+        GPT_4O_MINI = 'gpt-4o-mini'
         GPT_4O = 'gpt-4o'
+        GPT_5 = 'gpt-5'
 
     PLATFORM_CHOICES = [
         ("openai", "OpenAI"),
@@ -24,7 +24,7 @@ class Chat(models.Model):
     gpt_model = models.CharField(
         max_length=20,
         choices=GPTModelChoices.choices,
-        default=GPTModelChoices.GPT_3_5_TURBO,
+        default=GPTModelChoices.GPT_4O_MINI,
     )
     platform = models.CharField(
         max_length=10,

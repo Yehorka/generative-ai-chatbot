@@ -14,10 +14,11 @@ const ChatUI = ({
   messagesEndRef,
   selectedChatId,
   handleMessageChange,
+  platform,
 }) => {
   return (
     <div className="chat-ui">
-      <DropdownMenu selectedChatId={selectedChatId}/>
+      <DropdownMenu selectedChatId={selectedChatId} platform={platform} />
       <div className="chat-messages">
       {messages.map((message, index) => (
           <Message

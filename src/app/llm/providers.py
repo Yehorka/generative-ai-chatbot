@@ -197,10 +197,10 @@ class OpenAIProvider:
                     mapped_type = "output_text" if role == "assistant" else "input_text"
                     parts.append({"type": mapped_type, "text": text_value})
 
-            if not parts:
-                parts.append({"type": "input_text", "text": ""})
-
-            converted.append({"role": role, "content": parts})
+            converted.append({
+                "role": role,
+                "content": parts or [{"type": "input_text", "text": ""}],
+            })
 
         return converted
 

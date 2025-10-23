@@ -18,7 +18,7 @@ def _serialize_messages(messages: Iterable[Message]) -> list[dict[str, Any]]:
     for message in messages:
         parts: list[dict[str, Any]] = []
 
-        content = getattr(message, "content", None)
+        content = getattr(message, "content", "") or ""
         if content:
             parts.append({"type": "text", "text": content})
 
@@ -39,10 +39,10 @@ def _serialize_messages(messages: Iterable[Message]) -> list[dict[str, Any]]:
                 }
             )
 
-        if not parts:
-            parts = [{"type": "text", "text": ""}]
-
-        serialized.append({"role": message.role, "content": parts})
+        serialized.append({
+            "role": message.role,
+            "content": parts or [{"type": "text", "text": ""}],
+        })
 
     return serialized
 
@@ -54,10 +54,7 @@ _GEMINI_MODEL_ALIASES: dict[str, str] = {
 
 
 def _normalize_model_name(platform: str, model_name: str | None) -> str | None:
-    if not model_name:
-        return None
-
-    normalized = model_name.strip()
+    normalized = (model_name or "").strip()
     if not normalized:
         return None
 

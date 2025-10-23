@@ -1,92 +1,109 @@
 import React, { useState, useEffect } from 'react';
 import axiosInstance from './axiosInstance';
-import { API_URL } from './config';
 
-const modelInfo = {
-    "gpt-3.5-turbo": "GPT-3.5 Turbo - Це оптимізована версія GPT-3.5, яка краще підходить для загальних освітніх завдань, таких як створення навчальних матеріалів та відповідь на питання студентів.",
-    "gpt-4": "GPT-4 - Це більш потужна та точна модель, яка підходить для складніших освітніх завдань, таких як проведення глибоких аналізів тексту та допомога у написанні наукових робіт.",
-    "gpt-4o": "GPT-4o - Це спеціалізована версія GPT-4, оптимізована для конкретних освітніх застосувань, таких як індивідуальне навчання та інтерактивні навчальні програми."
+const MODEL_OPTIONS = {
+  openai: [
+    { value: 'gpt-4o-mini', label: 'OpenAI GPT-4o mini' },
+    { value: 'gpt-4o', label: 'OpenAI GPT-4o' },
+    { value: 'gpt-4', label: 'OpenAI GPT-4' },
+    { value: 'gpt-3.5-turbo', label: 'OpenAI GPT-3.5 Turbo' },
+  ],
+  gemini: [
+    { value: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' },
+  ],
 };
 
-const DropdownMenu = ({selectedChatId }) => {
-    const [selectedModel, setSelectedModel] = useState('');
-    const [loading, setLoading] = useState(true);
-    const [hoveredModel, setHoveredModel] = useState(null);
+const MODEL_INFO = {
+  'gpt-3.5-turbo': 'GPT-3.5 Turbo — оптимізована для загальних освітніх завдань.',
+  'gpt-4': 'GPT-4 — точніша модель для складних аналітичних задач.',
+  'gpt-4o': 'GPT-4o — універсальна модель для інтерактивних сценаріїв.',
+  'gpt-4o-mini': 'GPT-4o mini — швидша та доступніша версія GPT-4o.',
+  'gemini-1.5-pro': 'Gemini 1.5 Pro — потужна модель Google для генеративних задач.',
+};
+
+const DropdownMenu = ({ selectedChatId, platform }) => {
+  const [selectedModel, setSelectedModel] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [hoveredModel, setHoveredModel] = useState(null);
+
+  useEffect(() => {
+    if (!selectedChatId) {
+      setSelectedModel('');
+      return;
+    }
 
     const fetchModel = async () => {
-        try {
-            const response = await axiosInstance.get(`/chat/${selectedChatId}/`);
-            setSelectedModel(response.data.gpt_model);  
-            setLoading(false);
-        } catch (error) {
-            console.error('Failed to fetch model', error);
-            setLoading(false);
-        }
+      setLoading(true);
+      try {
+        const response = await axiosInstance.get(`/chat/${selectedChatId}/`);
+        const fallbackOptions = MODEL_OPTIONS[platform] || [];
+        const modelName = response.data?.model_name || fallbackOptions[0]?.value || '';
+        setSelectedModel(modelName);
+      } catch (error) {
+        console.error('Failed to fetch model', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const updateModel = async (model) => {
-        try {
-            await axiosInstance.patch(`/chat/${selectedChatId}/`, { gpt_model: model });
-            console.log('Model updated successfully');
-        } catch (error) {
-            console.error('Failed to update model', error);
-        }
-    };
+    fetchModel();
+  }, [selectedChatId, platform]);
 
-    useEffect(() => {
-        fetchModel();
-    }, [selectedChatId]);
+  const updateModel = async (model) => {
+    if (!selectedChatId) {
+      return;
+    }
 
-    const handleMouseEnter = (model) => {
-        setHoveredModel(model);
-    };
+    try {
+      await axiosInstance.patch(`/chat/${selectedChatId}/`, { model_name: model });
+    } catch (error) {
+      console.error('Failed to update model', error);
+    }
+  };
 
-    const handleMouseLeave = () => {
-        setHoveredModel(null);
-    };
+  const handleChange = (event) => {
+    const newModel = event.target.value;
+    setSelectedModel(newModel);
+    updateModel(newModel);
+  };
 
-    const handleChange = (event) => {
-        const newModel = event.target.value;
-        setSelectedModel(newModel);
-        updateModel(newModel);
-    };
+  if (!selectedChatId) {
+    return null;
+  }
 
-    if (loading) return <p>Loading...</p>;
+  if (loading) {
+    return <p>Loading...</p>;
+  }
 
-    return (
-        <div>
-        <div>Оберіть мовну модель:</div>
-        <select value={selectedModel} onChange={handleChange}>
-            <option 
-                value="gpt-4o"
-                onMouseEnter={() => handleMouseEnter('gpt-4o')}
-                onMouseLeave={handleMouseLeave}
-            >
-                OpenAI GPT-4o
-            </option>
-            <option 
-                value="gpt-4"
-                onMouseEnter={() => handleMouseEnter('gpt-4')}
-                onMouseLeave={handleMouseLeave}
-            >
-                OpenAI GPT-4
-            </option>
-            <option 
-                value="gpt-3.5-turbo"
-                onMouseEnter={() => handleMouseEnter('gpt-3.5-turbo')}
-                onMouseLeave={handleMouseLeave}
-            >
-                OpenAI GPT-3.5 Turbo
-            </option>
-        </select>
-        {hoveredModel && (
-            <div className="model-info">
-                <h3>{hoveredModel}</h3>
-                <p>{modelInfo[hoveredModel]}</p>
-            </div>
-        )}
+  const options = MODEL_OPTIONS[platform] || MODEL_OPTIONS.openai;
+
+  const normalizedValue = options.some((option) => option.value === selectedModel)
+    ? selectedModel
+    : options[0]?.value || '';
+
+  return (
+    <div className="model-switcher">
+      <div>Оберіть мовну модель:</div>
+      <select value={normalizedValue} onChange={handleChange}>
+        {options.map((option) => (
+          <option
+            key={option.value}
+            value={option.value}
+            onMouseEnter={() => setHoveredModel(option.value)}
+            onMouseLeave={() => setHoveredModel(null)}
+          >
+            {option.label}
+          </option>
+        ))}
+      </select>
+      {hoveredModel && (
+        <div className="model-info">
+          <h3>{hoveredModel}</h3>
+          <p>{MODEL_INFO[hoveredModel]}</p>
+        </div>
+      )}
     </div>
-    );
+  );
 };
 
 export default DropdownMenu;

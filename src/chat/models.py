@@ -53,6 +53,7 @@ class Message(models.Model):
     chat = models.ForeignKey(Chat, related_name='messages', on_delete=models.CASCADE)
     role = models.CharField(max_length=10, choices=RoleChoices.choices)
     content = models.TextField()
+    image = models.FileField(upload_to="chat_images/", blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:

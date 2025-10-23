@@ -5,7 +5,7 @@ from django.core.validators import ValidationError
 from django.http import Http404
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
@@ -75,6 +75,52 @@ class ChatViewSet(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         chat = create_chat(request.user, serializer.validated_data)
         serializer = self.get_serializer(instance=chat)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="content",
+        parser_classes=[MultiPartParser, FormParser, JSONParser],
+    )
+    def send(self, request, pk=None):
+        chat = self.get_object()
+        message_raw = request.data.get("message", "")
+        message_text = str(message_raw).strip() if message_raw is not None else ""
+        image_file = request.FILES.get("image")
+
+        if image_file and chat.platform != "openai":
+            return Response(
+                {"detail": "Image uploads are only available for OpenAI chats."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if image_file and (not image_file.content_type or not image_file.content_type.startswith("image/")):
+            return Response(
+                {"image": ["Only image uploads are supported."]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not message_text and not image_file:
+            return Response(
+                {"message": ["This field is required when no image is provided."]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            ai_message = get_ai_message(chat, message_text, image_file=image_file)
+        except NoAPIKeyException as exc:
+            return Response(
+                {"detail": str(exc)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        except RuntimeError as exc:
+            return Response(
+                {"detail": str(exc)},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+
+        serializer = MessageSerializer(ai_message)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["post"], url_path="content")

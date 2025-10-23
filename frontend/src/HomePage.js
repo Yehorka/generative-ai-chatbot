@@ -17,6 +17,8 @@ function HomePage() {
     const [selectedChatId, setSelectedChatId] = useState(null);
     const [messages, setMessages] = useState([]);
     const [inputMessage, setInputMessage] = useState("");
+    const [attachedImage, setAttachedImage] = useState(null);
+    const [attachedImagePreview, setAttachedImagePreview] = useState(null);
     const messagesEndRef = useRef(null);
     const [isAssistantTyping, setIsAssistantTyping] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,6 +61,8 @@ function HomePage() {
       setSelectedChatId(null);
       setMessages([]);
       setIsAssistantTyping(false);
+      setAttachedImage(null);
+      setAttachedImagePreview(null);
     }, [platform]);
   
     const fetchMessages = useCallback(async (chatId) => {
@@ -76,6 +80,8 @@ function HomePage() {
       } else {
         setMessages([]);
       }
+      setAttachedImage(null);
+      setAttachedImagePreview(null);
     }, [selectedChatId, fetchMessages]);
 
     useEffect(() => {
@@ -100,20 +106,44 @@ function HomePage() {
       messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
     };
   
+    const handleAttachImage = useCallback((file) => {
+      if (!file) {
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAttachedImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+      setAttachedImage(file);
+    }, []);
+
+    const handleRemoveImage = useCallback(() => {
+      setAttachedImage(null);
+      setAttachedImagePreview(null);
+    }, []);
+
     const sendMessage = async () => {
-      if (!selectedChatId || !inputMessage.trim()) {
+      const trimmedMessage = inputMessage.trim();
+      if (!selectedChatId || (!trimmedMessage && !attachedImage)) {
         return;
       }
 
       const userMessage = inputMessage;
+      const imageFile = attachedImage;
+      const imagePreview = attachedImagePreview;
+
       setMessages((prevMessages) => [
         ...prevMessages,
         {
           content: userMessage,
           role: "user",
+          image: imagePreview,
         },
       ]);
       setInputMessage("");
+      setAttachedImage(null);
+      setAttachedImagePreview(null);
 
       setIsAssistantTyping(true);
 
@@ -121,24 +151,40 @@ function HomePage() {
       const currentChatId = selectedChatId;
       setTimeout(async () => {
         try {
-          const response = await axiosInstance.post(`/chat/${currentChatId}/content/`, {
-            message: userMessage,
-          });
+          let payload;
+          let config;
+          if (imageFile) {
+            payload = new FormData();
+            payload.append("message", trimmedMessage);
+            payload.append("image", imageFile);
+            config = { headers: { "Content-Type": "multipart/form-data" } };
+          } else {
+            payload = { message: trimmedMessage };
+          }
+
+          const response = await axiosInstance.post(
+            `/chat/${currentChatId}/content/`,
+            payload,
+            config,
+          );
           const assistantMessage = response.data;
           setMessages((prevMessages) => [
             ...prevMessages,
             {
               content: assistantMessage.content,
               role: assistantMessage.role,
+              image: assistantMessage.image,
             },
           ]);
         } catch (error) {
           console.log("Error sending message:", error);
+          const errorDetail =
+            error.response?.data?.detail ||
+            "⚠️ An error occurred while sending the message. Please make sure the backend is running and API keys are configured in the .env file.";
           setMessages((prevMessages) => [
             ...prevMessages,
             {
-              content:
-                "⚠️ An error occurred while sending the message. Please make sure the backend is running and API keys are configured in the .env file.",
+              content: errorDetail,
               role: "assistant",
             },
           ]);
@@ -231,6 +277,10 @@ function HomePage() {
             selectedChatId={selectedChatId}
             handleMessageChange={handleMessageChange}
             platform={platform}
+            onAttachImage={handleAttachImage}
+            onRemoveImage={handleRemoveImage}
+            attachedImagePreview={attachedImagePreview}
+            hasAttachment={Boolean(attachedImage)}
           >
 
             </ChatUI>

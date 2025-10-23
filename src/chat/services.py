@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import Iterable
+import base64
+import mimetypes
+from typing import Iterable, Any
 
 from apis.services import NoAPIKeyException
 
@@ -9,11 +11,33 @@ from app.llm.factory import get_provider
 from .models import Chat, Message
 
 
-def _serialize_messages(messages: Iterable[Message]) -> list[dict[str, str]]:
-    return [
-        {"role": message.role, "content": message.content}
-        for message in messages
-    ]
+def _serialize_messages(messages: Iterable[Message]) -> list[dict[str, Any]]:
+    serialized: list[dict[str, Any]] = []
+    for message in messages:
+        parts: list[dict[str, Any]] = []
+        if message.content:
+            parts.append({"type": "text", "text": message.content})
+
+        if message.image:
+            with message.image.open("rb") as image_file:
+                encoded = base64.b64encode(image_file.read()).decode("utf-8")
+            mime_type, _ = mimetypes.guess_type(message.image.name)
+            data_url = f"data:{mime_type or 'image/png'};base64,{encoded}"
+            parts.append(
+                {
+                    "type": "image_url",
+                    "image_url": {"url": data_url},
+                }
+            )
+
+        if not parts:
+            serialized.append({"role": message.role, "content": ""})
+        elif len(parts) == 1 and parts[0]["type"] == "text":
+            serialized.append({"role": message.role, "content": parts[0]["text"]})
+        else:
+            serialized.append({"role": message.role, "content": parts})
+
+    return serialized
 
 
 _GEMINI_MODEL_ALIASES: dict[str, str] = {
@@ -38,7 +62,7 @@ def _normalize_model_name(platform: str, model_name: str | None) -> str | None:
 
 def get_ai_response(
     gpt_model: str,
-    message_list: Iterable[dict[str, str]],
+    message_list: Iterable[dict[str, Any]],
     *,
     platform: str = "openai",
     model_name: str | None = None,
@@ -55,8 +79,13 @@ def get_ai_response(
         ) from exc
 
 
-def get_ai_message(chat: Chat, message_text: str) -> Message:
-    Message.objects.create(chat=chat, role=Message.RoleChoices.USER, content=message_text)
+def get_ai_message(chat: Chat, message_text: str, *, image_file=None) -> Message:
+    Message.objects.create(
+        chat=chat,
+        role=Message.RoleChoices.USER,
+        content=message_text,
+        image=image_file,
+    )
 
     messages = chat.messages.order_by("timestamp")
     serialized_messages = _serialize_messages(messages)

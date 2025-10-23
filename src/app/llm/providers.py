@@ -2,14 +2,15 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from typing import Iterable, Mapping
+from collections.abc import Mapping
+from typing import Iterable, Any
 from urllib import error as urllib_error
 from urllib import request as urllib_request
 
 from openai import OpenAI
 
 
-MessagePayload = Mapping[str, str]
+MessagePayload = Mapping[str, Any]
 
 
 @dataclass
@@ -35,7 +36,17 @@ class GeminiProvider:
 
         for message in messages:
             role = message.get("role", "user") or "user"
-            content = message.get("content", "") or ""
+            raw_content = message.get("content", "")
+            if isinstance(raw_content, list):
+                text_parts: list[str] = []
+                for part in raw_content:
+                    if not isinstance(part, Mapping):
+                        continue
+                    if part.get("type") == "text" and part.get("text"):
+                        text_parts.append(str(part.get("text")))
+                content = "\n".join(text_parts)
+            else:
+                content = str(raw_content or "")
             if not content:
                 continue
 

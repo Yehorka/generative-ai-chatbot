@@ -15,6 +15,10 @@ const ChatUI = ({
   selectedChatId,
   handleMessageChange,
   platform,
+  onAttachImage,
+  onRemoveImage,
+  attachedImagePreview,
+  hasAttachment,
 }) => {
   return (
     <div className="chat-ui">
@@ -48,6 +52,11 @@ const ChatUI = ({
         sendMessage={sendMessage}
         handleMessageChange={handleMessageChange}
         selectedChat={selectedChatId}
+        onAttachImage={onAttachImage}
+        onRemoveImage={onRemoveImage}
+        attachedImagePreview={attachedImagePreview}
+        hasAttachment={hasAttachment}
+        platform={platform}
       />
     </div>
   );

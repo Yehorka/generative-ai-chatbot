@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from collections.abc import Iterable, Mapping
+import logging
 from typing import Any, Sequence
 from urllib import error as urllib_error
 from urllib import request as urllib_request
@@ -11,6 +12,9 @@ from openai import OpenAI
 
 
 MessagePayload = Mapping[str, Any]
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -24,6 +28,11 @@ class OpenAIProvider:
         if self._should_use_responses_api(model_name):
             return self._complete_with_responses_api(client, message_list, model_name)
 
+        logger.debug(
+            "OpenAI chat.completions payload: model=%s messages=%s",
+            model_name,
+            message_list,
+        )
         response = client.chat.completions.create(
             model=model_name,
             messages=message_list,
@@ -44,6 +53,11 @@ class OpenAIProvider:
         converted_messages = self._convert_messages_for_responses(messages)
         responses_client = getattr(client, "responses", None)
         if responses_client is not None:
+            logger.debug(
+                "OpenAI responses payload: model=%s input=%s",
+                model_name,
+                converted_messages,
+            )
             response = responses_client.create(
                 model=model_name,
                 input=converted_messages,
@@ -66,6 +80,11 @@ class OpenAIProvider:
             "model": model_name,
             "input": converted_messages,
         }
+        logger.debug(
+            "OpenAI responses HTTP payload: model=%s input=%s",
+            model_name,
+            converted_messages,
+        )
         request = urllib_request.Request(
             "https://api.openai.com/v1/responses",
             data=json.dumps(payload).encode("utf-8"),

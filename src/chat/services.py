@@ -4,6 +4,8 @@ import base64
 import mimetypes
 from typing import Iterable, Any
 
+from django.core.files.base import File
+
 from apis.services import NoAPIKeyException
 
 from app.llm.factory import get_provider
@@ -15,27 +17,32 @@ def _serialize_messages(messages: Iterable[Message]) -> list[dict[str, Any]]:
     serialized: list[dict[str, Any]] = []
     for message in messages:
         parts: list[dict[str, Any]] = []
-        if message.content:
-            parts.append({"type": "text", "text": message.content})
 
-        if message.image:
-            with message.image.open("rb") as image_file:
-                encoded = base64.b64encode(image_file.read()).decode("utf-8")
-            mime_type, _ = mimetypes.guess_type(message.image.name)
+        content = getattr(message, "content", None)
+        if content:
+            parts.append({"type": "text", "text": content})
+
+        image_file: File | None = getattr(message, "image", None)
+        if (
+            image_file
+            and message.role == Message.RoleChoices.USER
+            and hasattr(image_file, "open")
+        ):
+            with image_file.open("rb") as image_stream:
+                encoded = base64.b64encode(image_stream.read()).decode("utf-8")
+            mime_type, _ = mimetypes.guess_type(image_file.name)
             data_url = f"data:{mime_type or 'image/png'};base64,{encoded}"
             parts.append(
                 {
                     "type": "image_url",
-                    "image_url": {"url": data_url},
+                    "image_url": {"url": data_url, "detail": "high"},
                 }
             )
 
         if not parts:
-            serialized.append({"role": message.role, "content": ""})
-        elif len(parts) == 1 and parts[0]["type"] == "text":
-            serialized.append({"role": message.role, "content": parts[0]["text"]})
-        else:
-            serialized.append({"role": message.role, "content": parts})
+            parts = [{"type": "text", "text": ""}]
+
+        serialized.append({"role": message.role, "content": parts})
 
     return serialized
 

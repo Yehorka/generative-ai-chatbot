@@ -10,6 +10,17 @@
   --danger: #f87171;
 }
 
+html,
+body {
+  height: 100%;
+}
+
+#root {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 body {
   background: var(--background-primary);
   color: var(--text-primary);
@@ -17,11 +28,28 @@ body {
   margin: 0;
 }
 
-.App {
+.app-layout {
+  flex: 1;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
   min-height: 100vh;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.App {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 2rem 0 1.5rem;
+  box-sizing: border-box;
+  gap: 1.5rem;
   background: radial-gradient(circle at top, rgba(37, 99, 235, 0.25), transparent 55%),
     var(--background-primary);
 }
@@ -48,12 +76,14 @@ body {
 
 .chat-container {
   display: flex;
-  width: 85%;
-  height: 85vh;
+  flex: 1;
+  width: min(85%, 1200px);
+  max-width: 1200px;
   background: var(--background-secondary);
   box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.65);
   border-radius: 20px;
   overflow: hidden;
+  min-height: 0;
 }
 
 .chat-history-container {
@@ -381,9 +411,11 @@ body {
 }
 
 .footer {
-  margin-top: 1.5rem;
+  margin-top: auto;
+  padding: 1.25rem 0 0.75rem;
   color: var(--text-secondary);
   text-align: center;
+  width: 100%;
 }
 
 .footer a {

@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 
-import { FaPaperPlane, FaImage } from "react-icons/fa";
+import { FaPaperPlane, FaPaperclip } from "react-icons/fa";
 import VoiceRecorder from "../VoiceRecorder";
 
 const ChatInput = ({
@@ -69,8 +69,9 @@ const ChatInput = ({
             onClick={() => fileInputRef.current?.click()}
             disabled={!selectedChat}
             title="Завантажити зображення"
+            aria-label="Завантажити зображення"
           >
-            <FaImage />
+            <FaPaperclip aria-hidden="true" />
           </button>
         </>
       )}

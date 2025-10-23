@@ -16,6 +16,26 @@ def _serialize_messages(messages: Iterable[Message]) -> list[dict[str, str]]:
     ]
 
 
+_GEMINI_MODEL_ALIASES: dict[str, str] = {
+    "gemini-1.5-pro": "gemini-2.5-flash-lite",
+    "models/gemini-1.5-pro": "gemini-2.5-flash-lite",
+}
+
+
+def _normalize_model_name(platform: str, model_name: str | None) -> str | None:
+    if not model_name:
+        return None
+
+    normalized = model_name.strip()
+    if not normalized:
+        return None
+
+    if platform.lower() == "gemini":
+        return _GEMINI_MODEL_ALIASES.get(normalized, normalized)
+
+    return normalized
+
+
 def get_ai_response(
     gpt_model: str,
     message_list: Iterable[dict[str, str]],
@@ -25,7 +45,8 @@ def get_ai_response(
 ) -> str:
     provider = get_provider(platform)
     try:
-        return provider.complete(list(message_list), model_name or gpt_model)
+        resolved_model = _normalize_model_name(platform, model_name) or gpt_model
+        return provider.complete(list(message_list), resolved_model)
     except NoAPIKeyException:
         raise
     except Exception as exc:  # pragma: no cover - propagate provider errors
@@ -39,6 +60,11 @@ def get_ai_message(chat: Chat, message_text: str) -> Message:
 
     messages = chat.messages.order_by("timestamp")
     serialized_messages = _serialize_messages(messages)
+
+    normalized_model = _normalize_model_name(chat.platform, chat.model_name)
+    if normalized_model and normalized_model != chat.model_name:
+        chat.model_name = normalized_model
+        chat.save(update_fields=["model_name"])
 
     response_content = get_ai_response(
         str(chat.gpt_model),

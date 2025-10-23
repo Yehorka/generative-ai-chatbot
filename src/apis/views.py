@@ -1,12 +1,10 @@
 from rest_framework.permissions import IsAdminUser
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
 from .models import APIKey
 from .serializers import APIKeySerializer
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.decorators import api_view
-from django.shortcuts import redirect
 
 
 class APIKeyViewSet(ModelViewSet):

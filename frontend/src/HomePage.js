@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import axiosInstance from "./axiosInstance";
 
 import "./App.css";
 import ChatHistory from "./components/ChatHistory";
 import ChatUI from "./components/ChatUI";
 import Profile from "./Profile";
-import DropdownMenu from "./DropdownMenu";
 import Modal from "./Modal";
 import { API_URL } from './config';
+import PlatformSwitcher from "./components/PlatformSwitcher";
 
 
 
@@ -17,38 +17,77 @@ function HomePage() {
     const [selectedChatId, setSelectedChatId] = useState(null);
     const [messages, setMessages] = useState([]);
     const [inputMessage, setInputMessage] = useState("");
+    const [attachedImage, setAttachedImage] = useState(null);
+    const [attachedImagePreview, setAttachedImagePreview] = useState(null);
     const messagesEndRef = useRef(null);
     const [isAssistantTyping, setIsAssistantTyping] = useState(false);
-    const [chatName, setChatName] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [platform, setPlatform] = useState(() => localStorage.getItem('chatPlatform') || 'openai');
 
-    useEffect(async () => {
-      axiosInstance.get('/apis/keys/');
-      const response2 = await axiosInstance.get('/users/');
-      console.log('API URL:', API_URL); // Add this to verify
-      console.log(response2.data.username);
-      if (response2.data.user_type == "" && response2.data.username == 'admin') {
-          window.location.href = '/management/';  
-        }
-    },[]);
     useEffect(() => {
+      const bootstrap = async () => {
+        try {
+          await axiosInstance.get('/apis/keys/');
+          const response2 = await axiosInstance.get('/users/');
+          console.log('API URL:', API_URL);
+          console.log(response2.data.username);
+          if (response2.data.user_type === "" && response2.data.username === 'admin') {
+            window.location.href = '/management/';
+          }
+        } catch (error) {
+          console.error('Initialization error:', error);
+        }
+      };
 
+      bootstrap();
+    },[]);
+    const fetchChats = useCallback(async () => {
+      try {
+        const response = await axiosInstance.get(`/chat/`, {
+          params: { platform },
+        });
+        setChats(response.data);
+      } catch (error) {
+        console.error("Error fetching chats:", error);
+      }
+    }, [platform]);
+
+    useEffect(() => {
       fetchChats();
+    }, [fetchChats]);
 
-    }, []);
+    useEffect(() => {
+      localStorage.setItem('chatPlatform', platform);
+      setSelectedChatId(null);
+      setMessages([]);
+      setIsAssistantTyping(false);
+      setAttachedImage(null);
+      setAttachedImagePreview(null);
+    }, [platform]);
   
+    const fetchMessages = useCallback(async (chatId) => {
+      try {
+        const response = await axiosInstance.get(`/chat/${chatId}/`);
+        setMessages(response.data.messages);
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+      }
+    }, []);
+
     useEffect(() => {
       if (selectedChatId) {
         fetchMessages(selectedChatId);
       } else {
         setMessages([]);
       }
-    }, [selectedChatId]);
-  
+      setAttachedImage(null);
+      setAttachedImagePreview(null);
+    }, [selectedChatId, fetchMessages]);
+
     useEffect(() => {
       scrollToBottom();
     }, [messages]);
-    
+
     const openModal = () => {
         setIsModalOpen(true);
     };
@@ -67,91 +106,118 @@ function HomePage() {
       messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
     };
   
-    const fetchChats = async () => {
-      try {
-        const accessToken = localStorage.getItem('accessToken'); 
-        const response = await axiosInstance.get(`/chat/`);
-        setChats(response.data);
-      } catch (error) {
-        console.error("Error fetching chats:", error);
+    const handleAttachImage = useCallback((file) => {
+      if (!file) {
+        return;
       }
-    };
-  
-    const fetchMessages = async (chatId) => {
-      try {
-        const response = await axiosInstance.get(`/chat/${chatId}/`);
-        setMessages(response.data.messages);
-      } catch (error) {
-        console.error("Error fetching messages:", error);
-      }
-    };
-  
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAttachedImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+      setAttachedImage(file);
+    }, []);
+
+    const handleRemoveImage = useCallback(() => {
+      setAttachedImage(null);
+      setAttachedImagePreview(null);
+    }, []);
+
     const sendMessage = async () => {
-      setMessages([
-        ...messages,
+      const trimmedMessage = inputMessage.trim();
+      if (!selectedChatId || (!trimmedMessage && !attachedImage)) {
+        return;
+      }
+
+      const userMessage = inputMessage;
+      const imageFile = attachedImage;
+      const imagePreview = attachedImagePreview;
+
+      setMessages((prevMessages) => [
+        ...prevMessages,
         {
-          content: inputMessage,
+          content: userMessage,
           role: "user",
+          image: imagePreview,
         },
       ]);
       setInputMessage("");
-  
-      setIsAssistantTyping(true);
-  
-      try {
+      setAttachedImage(null);
+      setAttachedImagePreview(null);
 
-        const delay = 1000 + Math.random() * 100;
-        setTimeout(async () => {
-          try {
-            const response = await axiosInstance.post(`/chat/${selectedChatId}/new_message/`, {
-              chat_id: selectedChatId || undefined,
-              message: inputMessage,
-            });
-  
-            if (!selectedChatId) {
-              setSelectedChatId(response.data.chat_id);
-              setChats([{ id: response.data.chat_id }, ...chats]);
-            } else {
-              fetchMessages(selectedChatId);
-            }
-          } catch (error) {
-            console.log("Error sending message:", error);
-            setMessages([
-              ...messages,
-              {
-                content:
-                  "⚠️ An error occurred while sending the message. Please make sure the backend is running and OPENAI_API_KEY is set in the .env file.",
-                role: "assistant",
-              },
-            ]);
-          } finally {
-            setIsAssistantTyping(false);
+      setIsAssistantTyping(true);
+
+      const delay = 1000 + Math.random() * 100;
+      const currentChatId = selectedChatId;
+      setTimeout(async () => {
+        try {
+          let payload;
+          let config;
+          if (imageFile) {
+            payload = new FormData();
+            payload.append("message", trimmedMessage);
+            payload.append("image", imageFile);
+            config = { headers: { "Content-Type": "multipart/form-data" } };
+          } else {
+            payload = { message: trimmedMessage };
           }
-        }, delay);
-      } catch (error) {
-        console.error("Error sending message:", error);
-      }
+
+          const response = await axiosInstance.post(
+            `/chat/${currentChatId}/content/`,
+            payload,
+            config,
+          );
+          const assistantMessage = response.data;
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              content: assistantMessage.content,
+              role: assistantMessage.role,
+              image: assistantMessage.image,
+            },
+          ]);
+        } catch (error) {
+          console.log("Error sending message:", error);
+          const errorDetail =
+            error.response?.data?.detail ||
+            "⚠️ An error occurred while sending the message. Please make sure the backend is running and API keys are configured in the .env file.";
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              content: errorDetail,
+              role: "assistant",
+            },
+          ]);
+        } finally {
+          setIsAssistantTyping(false);
+        }
+      }, delay);
     };
   
     const createNewChat = async (name) => {
       try {
         const response = await axiosInstance.post(`/chat/`, {
           name: name,
-          gpt_model: 'gpt-3.5-turbo',
+          platform: platform,
+          model_name: platform === 'gemini' ? 'gemini-2.5-flash-lite' : 'gpt-4o-mini',
         });
         const newChat = response.data;
-        
-        setChats([newChat, ...chats]);
+
+        setChats((prevChats) => [newChat, ...prevChats]);
         setSelectedChatId(newChat.id);
       } catch (error) {
         console.error("Error creating a new chat:", error);
       }
     };
 
-   const deleteChat = async () => {
+   const deleteChat = async (chatId) => {
       try {
-        const response = await axiosInstance.delete(`/chat/${selectedChatId}`);
-        setSelectedChatId(null); 
+        const targetId = chatId || selectedChatId;
+        if (!targetId) {
+          return;
+        }
+        await axiosInstance.delete(`/chat/${targetId}`);
+        setSelectedChatId(null);
         fetchChats();
       } catch (error) {
         console.error("Error deleting a chat:", error);
@@ -186,11 +252,12 @@ function HomePage() {
         <div className="chat-container">
           <div className="chat-history-container">
           <button className="new-chat-button" onClick={openModal}>Створити новий чат</button>
-            <Modal 
-                isOpen={isModalOpen} 
-                onClose={closeModal} 
-                onSubmit={handleChatNameSubmit} 
+            <Modal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                onSubmit={handleChatNameSubmit}
             />
+            <PlatformSwitcher platform={platform} onPlatformChange={setPlatform} />
             <ChatHistory
               chats={chats}
               selectedChatId={selectedChatId}
@@ -209,8 +276,13 @@ function HomePage() {
             messagesEndRef={messagesEndRef}
             selectedChatId={selectedChatId}
             handleMessageChange={handleMessageChange}
+            platform={platform}
+            onAttachImage={handleAttachImage}
+            onRemoveImage={handleRemoveImage}
+            attachedImagePreview={attachedImagePreview}
+            hasAttachment={Boolean(attachedImage)}
           >
-            
+
             </ChatUI>
         </div>
         <div className="footer">

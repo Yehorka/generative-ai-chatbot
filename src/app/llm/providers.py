@@ -42,35 +42,96 @@ class OpenAIProvider:
         model_name: str,
     ) -> str:
         converted_messages = self._convert_messages_for_responses(messages)
-        response = client.responses.create(
-            model=model_name,
-            input=converted_messages,
+        responses_client = getattr(client, "responses", None)
+        if responses_client is not None:
+            response = responses_client.create(
+                model=model_name,
+                input=converted_messages,
+            )
+            text_output = self._extract_text_from_responses_payload(response)
+            if text_output:
+                return text_output
+
+        return self._complete_with_responses_api_via_http(
+            converted_messages,
+            model_name,
         )
 
-        text_response = getattr(response, "output_text", None)
-        if text_response:
+    def _complete_with_responses_api_via_http(
+        self,
+        converted_messages: Sequence[MessagePayload],
+        model_name: str,
+    ) -> str:
+        payload = {
+            "model": model_name,
+            "input": converted_messages,
+        }
+        request = urllib_request.Request(
+            "https://api.openai.com/v1/responses",
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.api_key}",
+            },
+        )
+
+        try:
+            with urllib_request.urlopen(request) as response:
+                body = response.read().decode("utf-8")
+        except urllib_error.HTTPError as exc:  # pragma: no cover - API error handling
+            error_payload = exc.read().decode("utf-8", errors="ignore")
+            raise RuntimeError(
+                f"OpenAI Responses API error ({exc.code}): {error_payload}"
+            ) from exc
+        except urllib_error.URLError as exc:  # pragma: no cover - network error handling
+            raise RuntimeError(
+                f"OpenAI Responses API connection error: {exc.reason}"
+            ) from exc
+
+        try:
+            parsed = json.loads(body)
+        except json.JSONDecodeError as exc:  # pragma: no cover - unexpected API response
+            raise RuntimeError(
+                f"OpenAI Responses API returned invalid JSON: {body}"
+            ) from exc
+
+        return self._extract_text_from_responses_payload(parsed)
+
+    def _extract_text_from_responses_payload(self, payload: Any) -> str:
+        text_response = getattr(payload, "output_text", None)
+        if isinstance(text_response, str) and text_response:
             return text_response
 
-        # Fallback: iterate over structured content in the response payload.
-        output_chunks: list[str] = []
-        for item in getattr(response, "output", []) or []:
-            for part in getattr(item, "content", []) or []:
-                part_type = getattr(part, "type", None)
-                if part_type in {"output_text", "text"}:
-                    text_value = getattr(part, "text", None)
-                    if text_value:
-                        output_chunks.append(text_value)
-        if output_chunks:
-            return "".join(output_chunks)
+        output_attr = getattr(payload, "output", None)
+        if output_attr:
+            output_chunks: list[str] = []
+            for item in output_attr or []:
+                content = getattr(item, "content", None)
+                if content:
+                    for part in content or []:
+                        text_value = getattr(part, "text", None)
+                        if text_value:
+                            output_chunks.append(str(text_value))
+            if output_chunks:
+                return "".join(output_chunks)
 
-        if hasattr(response, "model_dump"):
-            dumped = response.model_dump()
-            candidates = dumped.get("output", [])
-            for candidate in candidates:
-                for part in candidate.get("content", []) or []:
-                    text_value = part.get("text")
-                    if text_value:
-                        output_chunks.append(str(text_value))
+        if hasattr(payload, "model_dump"):
+            return self._extract_text_from_responses_payload(payload.model_dump())
+
+        if isinstance(payload, Mapping):
+            text_value = payload.get("output_text")
+            if isinstance(text_value, str) and text_value:
+                return text_value
+
+            output_chunks: list[str] = []
+            for item in payload.get("output", []) or []:
+                content = item.get("content", []) or []
+                for part in content:
+                    if not isinstance(part, Mapping):
+                        continue
+                    text = part.get("text")
+                    if text:
+                        output_chunks.append(str(text))
             if output_chunks:
                 return "".join(output_chunks)
 

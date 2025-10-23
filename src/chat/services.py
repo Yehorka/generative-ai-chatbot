@@ -29,9 +29,7 @@ def get_ai_response(
     except NoAPIKeyException:
         raise
     except Exception as exc:  # pragma: no cover - propagate provider errors
-        raise RuntimeError(
-            f"Failed to generate response from provider: {exc}"
-        ) from exc
+        raise RuntimeError("Failed to generate response from provider") from exc
 
 
 def get_ai_message(chat: Chat, message_text: str) -> Message:

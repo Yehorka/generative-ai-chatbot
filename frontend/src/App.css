@@ -131,6 +131,10 @@ div.chat-ui > div:nth-child(1){
   background-color: #2a7f62;
 }
 
+.platform-mistral {
+  background-color: #5c4d7d;
+}
+
 .chat {
   padding: 1rem;
   cursor: pointer;

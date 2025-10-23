@@ -10,11 +10,33 @@ from urllib import request as urllib_request
 
 from openai import OpenAI
 
-
 MessagePayload = Mapping[str, Any]
 
 
 logger = logging.getLogger(__name__)
+
+
+def _extract_text_parts(raw_content: Any) -> str:
+    if isinstance(raw_content, list):
+        parts: list[str] = []
+        for part in raw_content:
+            if not isinstance(part, Mapping):
+                continue
+            part_type = part.get("type")
+            if part_type in {"text", "input_text", "output_text"}:
+                text_value = part.get("text")
+                if text_value:
+                    parts.append(str(text_value))
+        return "\n".join(parts).strip()
+
+    if isinstance(raw_content, str):
+        return raw_content.strip()
+
+    if raw_content is None:
+        return ""
+
+    return str(raw_content).strip()
+
 
 
 @dataclass
@@ -203,6 +225,74 @@ class OpenAIProvider:
             })
 
         return converted
+
+
+@dataclass
+class MistralProvider:
+    api_key: str
+
+    def complete(self, messages: Iterable[MessagePayload], model_name: str) -> str:
+        payload_messages: list[dict[str, str]] = []
+        for message in messages:
+            role = str(message.get("role", "user") or "user")
+            content = _extract_text_parts(message.get("content"))
+            if not content:
+                continue
+            payload_messages.append({"role": role, "content": content})
+
+        if not payload_messages:
+            return ""
+
+        payload = {
+            "model": model_name,
+            "messages": payload_messages,
+        }
+
+        logger.debug(
+            "Mistral chat.completions payload: model=%s messages=%s",
+            model_name,
+            payload_messages,
+        )
+
+        request = urllib_request.Request(
+            "https://api.mistral.ai/v1/chat/completions",
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.api_key}",
+            },
+        )
+
+        try:
+            with urllib_request.urlopen(request) as response:
+                body = response.read().decode("utf-8")
+        except urllib_error.HTTPError as exc:  # pragma: no cover - API error handling
+            error_payload = exc.read().decode("utf-8", errors="ignore")
+            raise RuntimeError(
+                f"Mistral API error ({exc.code}): {error_payload}"
+            ) from exc
+        except urllib_error.URLError as exc:  # pragma: no cover - network error handling
+            raise RuntimeError(
+                f"Mistral API connection error: {exc.reason}"
+            ) from exc
+
+        try:
+            parsed = json.loads(body)
+        except json.JSONDecodeError as exc:  # pragma: no cover - unexpected API response
+            raise RuntimeError(
+                f"Mistral API returned invalid JSON: {body}"
+            ) from exc
+
+        choices = parsed.get("choices") or []
+        if not choices:
+            return ""
+
+        message = choices[0].get("message") or {}
+        content = message.get("content")
+        if isinstance(content, str):
+            return content
+
+        return ""
 
 
 @dataclass

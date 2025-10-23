@@ -15,6 +15,7 @@ class Chat(models.Model):
     PLATFORM_CHOICES = [
         ("openai", "OpenAI"),
         ("gemini", "Gemini"),
+        ("mistral", "Mistral"),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

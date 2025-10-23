@@ -4,7 +4,7 @@ from django.conf import settings
 
 from apis.services import NoAPIKeyException, get_api_key
 
-from .providers import GeminiProvider, OpenAIProvider
+from .providers import GeminiProvider, MistralProvider, OpenAIProvider
 
 
 def get_provider(platform: str):
@@ -19,6 +19,12 @@ def get_provider(platform: str):
             "GEMINI_API_KEY", getattr(settings, "GEMINI_API_KEY", None)
         )
         return GeminiProvider(api_key=gemini_api_key)
+
+    if platform_key == "mistral":
+        mistral_api_key = _resolve_api_key(
+            "MISTRAL_API_KEY", getattr(settings, "MISTRAL_API_KEY", None)
+        )
+        return MistralProvider(api_key=mistral_api_key)
 
     raise NoAPIKeyException(f"Unsupported LLM platform: {platform}")
 

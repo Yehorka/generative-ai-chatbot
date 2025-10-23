@@ -8,6 +8,7 @@ import Profile from "./Profile";
 import Modal from "./Modal";
 import { API_URL } from './config';
 import PlatformSwitcher from "./components/PlatformSwitcher";
+import { MODEL_OPTIONS } from './modelOptions';
 
 
 
@@ -23,6 +24,7 @@ function HomePage() {
     const [isAssistantTyping, setIsAssistantTyping] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [platform, setPlatform] = useState(() => localStorage.getItem('chatPlatform') || 'openai');
+    const [selectedModel, setSelectedModel] = useState('');
 
     useEffect(() => {
       const bootstrap = async () => {
@@ -63,6 +65,8 @@ function HomePage() {
       setIsAssistantTyping(false);
       setAttachedImage(null);
       setAttachedImagePreview(null);
+      const defaultModel = MODEL_OPTIONS[platform]?.[0]?.value || '';
+      setSelectedModel(defaultModel);
     }, [platform]);
   
     const fetchMessages = useCallback(async (chatId) => {
@@ -199,7 +203,12 @@ function HomePage() {
         const response = await axiosInstance.post(`/chat/`, {
           name: name,
           platform: platform,
-          model_name: platform === 'gemini' ? 'gemini-2.5-flash-lite' : 'gpt-4o-mini',
+          model_name:
+            platform === 'gemini'
+              ? 'gemini-2.5-flash-lite'
+              : platform === 'mistral'
+              ? 'mistral-small-latest'
+              : 'gpt-4o-mini',
         });
         const newChat = response.data;
 
@@ -257,7 +266,15 @@ function HomePage() {
                 onClose={closeModal}
                 onSubmit={handleChatNameSubmit}
             />
-            <PlatformSwitcher platform={platform} onPlatformChange={setPlatform} />
+            <PlatformSwitcher
+              platform={platform}
+              onPlatformChange={setPlatform}
+              selectedModelLabel={(() => {
+                const platformOptions = MODEL_OPTIONS[platform] || [];
+                const activeModel = selectedModel || platformOptions[0]?.value || '';
+                return platformOptions.find((option) => option.value === activeModel)?.label || '';
+              })()}
+            />
             <ChatHistory
               chats={chats}
               selectedChatId={selectedChatId}
@@ -277,6 +294,8 @@ function HomePage() {
             selectedChatId={selectedChatId}
             handleMessageChange={handleMessageChange}
             platform={platform}
+            selectedModel={selectedModel}
+            onModelChange={setSelectedModel}
             onAttachImage={handleAttachImage}
             onRemoveImage={handleRemoveImage}
             attachedImagePreview={attachedImagePreview}

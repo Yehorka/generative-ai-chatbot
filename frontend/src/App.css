@@ -16,6 +16,7 @@ body {
 }
 
 #root {
+  height: 100%;
   min-height: 100%;
   display: flex;
   flex-direction: column;
@@ -28,11 +29,26 @@ body {
   margin: 0;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .app-layout {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .app-main {
@@ -40,6 +56,8 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .App {
@@ -48,12 +66,13 @@ body {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  padding: 2rem 0 1.5rem;
+  padding: 1.5rem 0 1.25rem;
   box-sizing: border-box;
   gap: 1.5rem;
   background: radial-gradient(circle at top, rgba(37, 99, 235, 0.25), transparent 55%),
     var(--background-primary);
   min-height: 0;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -88,6 +107,7 @@ body {
   overflow: hidden;
   min-height: 0;
   height: 100%;
+  margin: 0 auto;
 }
 
 .chat-history-container {
@@ -97,6 +117,7 @@ body {
   border-right: 1px solid var(--border-subtle);
   background: linear-gradient(180deg, rgba(15, 23, 42, 0.95), rgba(11, 18, 32, 0.95));
   min-height: 0;
+  max-height: 100%;
 }
 
 .new-chat-button {
@@ -172,9 +193,11 @@ body {
 .chat-ui {
   display: flex;
   flex-direction: column;
+  flex: 1 1 70%;
   width: 70%;
   background: linear-gradient(180deg, rgba(17, 24, 39, 0.9), rgba(17, 24, 39, 0.98));
   min-height: 0;
+  max-height: 100%;
 }
 
 .platform-switcher {
@@ -243,6 +266,7 @@ body {
   overflow-y: auto;
   padding: 1.5rem;
   min-height: 0;
+  max-height: 100%;
 }
 
 .message {
@@ -281,6 +305,7 @@ body {
   flex-direction: column;
   gap: 0.85rem;
   padding: 0 1.25rem 1.25rem;
+  flex-shrink: 0;
 }
 
 .chat-input {
@@ -343,6 +368,17 @@ body {
   background: var(--background-tertiary);
   color: var(--text-primary);
   border: 1px solid var(--border-subtle);
+  position: relative;
+  overflow: hidden;
+}
+
+.chat-input .image-upload-button::before {
+  content: "";
+  width: 1.35rem;
+  height: 1.35rem;
+  background-color: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm10 2H7v14h10V5zm-9 5.75A1.25 1.25 0 1 1 9.25 12 1.25 1.25 0 0 1 8 10.75zm9 7.25H8l2.5-3.5 1.75 2.25 2.5-3.25L17 18z'/%3E%3C/svg%3E") center / contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm10 2H7v14h10V5zm-9 5.75A1.25 1.25 0 1 1 9.25 12 1.25 1.25 0 0 1 8 10.75zm9 7.25H8l2.5-3.5 1.75 2.25 2.5-3.25L17 18z'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
 .image-preview {
@@ -536,6 +572,7 @@ button {
     flex-direction: column;
     padding: 1.5rem 0;
     overflow: auto;
+    height: auto;
   }
 
   .chat-container {

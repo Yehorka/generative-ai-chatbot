@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import { FaImage } from "react-icons/fa";
 
 import { FaPaperPlane, FaPaperclip } from "react-icons/fa";
 import VoiceRecorder from "../VoiceRecorder";

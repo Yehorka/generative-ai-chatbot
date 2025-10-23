@@ -157,6 +157,7 @@ SIMPLE_JWT = {
 ALLOWED_HOSTS = ['*']
 
 OPENAI_API_KEY = getenv("OPENAI_API_KEY")
+GEMINI_API_KEY = getenv("GEMINI_API_KEY")
 
 AUTH_USER_MODEL = 'users.User'
 

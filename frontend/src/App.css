@@ -105,6 +105,32 @@ div.chat-ui > div:nth-child(1){
   overflow-y: auto;
 }
 
+.chat-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.platform-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.platform-openai {
+  background-color: #3e4684;
+}
+
+.platform-gemini {
+  background-color: #2a7f62;
+}
+
 .chat {
   padding: 1rem;
   cursor: pointer;
@@ -121,6 +147,44 @@ div.chat-ui > div:nth-child(1){
   flex-direction: column;
   width: 70%;
   height: 100%;
+}
+
+.platform-switcher {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  background-color: #f4f7ff;
+  border-bottom: 1px solid #d0d7ef;
+}
+
+.platform-switcher select {
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.5rem;
+  border: 1px solid #b5c2ea;
+  background-color: #fff;
+}
+
+.model-switcher {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+
+.model-switcher select {
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d0d7ef;
+}
+
+.model-info {
+  background-color: #f4f7ff;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  color: #3e4684;
+  box-shadow: 0 4px 10px rgba(62, 70, 132, 0.1);
 }
 
 .chat-messages {

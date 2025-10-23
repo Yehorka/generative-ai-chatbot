@@ -40,5 +40,17 @@ def check_gemini_api_key(api_key: str) -> bool:
         return False
 
 
+def check_mistral_api_key(api_key: str) -> bool:
+    request = urllib_request.Request(
+        "https://api.mistral.ai/v1/models",
+        headers={"Authorization": f"Bearer {api_key}"},
+    )
+    try:
+        with urllib_request.urlopen(request, timeout=10):
+            return True
+    except (urllib_error.HTTPError, urllib_error.URLError):
+        return False
+
+
 def get_openai_client():
     return OpenAI(api_key=get_api_key("OPENAI_API_KEY"))

@@ -1,23 +1,37 @@
 from rest_framework import serializers
 
 from .models import APIKey
-from .services import check_openai_api_key
+from .services import check_gemini_api_key, check_openai_api_key
 
 
-def validate_key(key: str) -> None:
-    if not check_openai_api_key(key):
-        raise serializers.ValidationError('Api key is not valid')
+SUPPORTED_API_KEYS = {
+    "OPENAI_API_KEY": check_openai_api_key,
+    "GEMINI_API_KEY": check_gemini_api_key,
+}
 
 
 class APIKeySerializer(serializers.ModelSerializer):
-    key = serializers.CharField(validators=[validate_key])
 
     class Meta:
         model = APIKey
         fields = "__all__"
-        read_only = ['id']
+        read_only_fields = ["id"]
 
-    def validate_key(self, value):
-        if not check_openai_api_key(value):
-            raise serializers.ValidationError('Api key is not valid')
-        return value
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        name = attrs.get("name") or getattr(self.instance, "name", None)
+        key = attrs.get("key")
+
+        if not name:
+            raise serializers.ValidationError({"name": "API key name is required."})
+
+        normalized_name = name.upper()
+        validator = SUPPORTED_API_KEYS.get(normalized_name)
+        if validator is None:
+            raise serializers.ValidationError({"name": "Unsupported API key name."})
+
+        if key is not None and not validator(key):
+            raise serializers.ValidationError({"key": "Api key is not valid"})
+
+        attrs["name"] = normalized_name
+        return attrs

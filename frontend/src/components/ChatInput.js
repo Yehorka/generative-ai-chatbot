@@ -71,7 +71,7 @@ const ChatInput = ({
             title="Завантажити зображення"
             aria-label="Завантажити зображення"
           >
-            <FaPaperclip aria-hidden="true" />
+            <FaImage aria-hidden="true" />
           </button>
         </>
       )}

@@ -1,37 +1,60 @@
-from apis.services import get_openai_client
+from __future__ import annotations
+
+from typing import Iterable
+
+from apis.services import NoAPIKeyException
+
+from app.llm.factory import get_provider
 
 from .models import Chat, Message
 
 
-def get_ai_response(gpt_model: str, message_list: list[dict['str', 'str']]):
-    client = get_openai_client()
-    completion = client.chat.completions.create(
-        model=gpt_model,
-        messages=message_list,
-    )
-    return completion.choices[0].message.content
+def _serialize_messages(messages: Iterable[Message]) -> list[dict[str, str]]:
+    return [
+        {"role": message.role, "content": message.content}
+        for message in messages
+    ]
+
+
+def get_ai_response(
+    gpt_model: str,
+    message_list: Iterable[dict[str, str]],
+    *,
+    platform: str = "openai",
+    model_name: str | None = None,
+) -> str:
+    provider = get_provider(platform)
+    try:
+        return provider.complete(list(message_list), model_name or gpt_model)
+    except NoAPIKeyException:
+        raise
+    except Exception as exc:  # pragma: no cover - propagate provider errors
+        raise RuntimeError(
+            f"Failed to generate response from provider: {exc}"
+        ) from exc
 
 
 def get_ai_message(chat: Chat, message_text: str) -> Message:
-    Message(chat=chat, role=Message.RoleChoices.USER, content=message_text).save()
+    Message.objects.create(chat=chat, role=Message.RoleChoices.USER, content=message_text)
 
-    messages = Message.objects.filter(chat=chat).order_by("timestamp")
+    messages = chat.messages.order_by("timestamp")
+    serialized_messages = _serialize_messages(messages)
 
-    message_list = [
-        {"role": message.role, "content": message.content} for message in messages
-    ]
-
-    ai_responce = get_ai_response(str(chat.gpt_model), message_list)
-
-    ai_message = Message(
-        chat=chat, role=Message.RoleChoices.ASSISTANT, content=ai_responce
+    response_content = get_ai_response(
+        str(chat.gpt_model),
+        serialized_messages,
+        platform=chat.platform,
+        model_name=chat.model_name or str(chat.gpt_model),
     )
-    ai_message.save()
+
+    ai_message = Message.objects.create(
+        chat=chat,
+        role=Message.RoleChoices.ASSISTANT,
+        content=response_content,
+    )
 
     return ai_message
 
 
 def transcribe_audio(file_path):
-    with open(file_path, 'rb') as audio:
-        response = client.audio.transcriptions.create(model="whisper-1", file=audio)
-        return response.text
+    raise NotImplementedError("Transcription is not implemented in this context")

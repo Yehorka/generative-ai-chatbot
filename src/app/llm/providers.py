@@ -169,7 +169,7 @@ class OpenAIProvider:
                             parts.append(
                                 {
                                     "type": "input_image",
-                                    "image_url": {"url": str(image_url)},
+                                    "image_url": str(image_url),
                                 }
                             )
             else:

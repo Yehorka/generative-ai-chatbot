@@ -9,7 +9,7 @@ const MODEL_OPTIONS = {
     { value: 'gpt-3.5-turbo', label: 'OpenAI GPT-3.5 Turbo' },
   ],
   gemini: [
-    { value: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' },
+    { value: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash Lite' },
   ],
 };
 
@@ -18,7 +18,7 @@ const MODEL_INFO = {
   'gpt-4': 'GPT-4 — точніша модель для складних аналітичних задач.',
   'gpt-4o': 'GPT-4o — універсальна модель для інтерактивних сценаріїв.',
   'gpt-4o-mini': 'GPT-4o mini — швидша та доступніша версія GPT-4o.',
-  'gemini-1.5-pro': 'Gemini 1.5 Pro — потужна модель Google для генеративних задач.',
+  'gemini-2.5-flash-lite': 'Gemini 2.5 Flash Lite — швидка модель Google для інтерактивних задач.',
 };
 
 const DropdownMenu = ({ selectedChatId, platform }) => {

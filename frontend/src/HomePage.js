@@ -153,7 +153,7 @@ function HomePage() {
         const response = await axiosInstance.post(`/chat/`, {
           name: name,
           platform: platform,
-          model_name: platform === 'gemini' ? 'gemini-1.5-pro' : 'gpt-4o-mini',
+          model_name: platform === 'gemini' ? 'gemini-2.5-flash-lite' : 'gpt-4o-mini',
         });
         const newChat = response.data;
 

@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { FaPaperPlane } from "react-icons/fa";
+import { FaPaperPlane, FaImage } from "react-icons/fa";
 import VoiceRecorder from "../VoiceRecorder";
 
 const ChatInput = ({
@@ -70,8 +70,10 @@ const ChatInput = ({
             title="Завантажити зображення"
             aria-label="Завантажити зображення"
           >
-            <span className="sr-only">Завантажити зображення</span>
+            <i class="fa-solid fa-image"></i>
+ 
           </button>
+
         </>
       )}
       <VoiceRecorder selectedChat={selectedChat} onTranscription={handleMessageChange} />

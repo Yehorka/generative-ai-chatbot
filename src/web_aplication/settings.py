@@ -163,8 +163,8 @@ MISTRAL_API_KEY = getenv("MISTRAL_API_KEY")
 AUTH_USER_MODEL = 'users.User'
 
 STUDENT_SEASTEM_MESSAGE = (
-    "You are an assistant for student. Answer using ukrainian language. It is improtant not to send answers in russian."
+    "Вітаю! Я твій асистент. Я тут, щоб допомогти тобі з навчанням та відповісти на будь-які питання, які у тебе можуть виникнути. Якщо тобі щось потрібно, просто скажи!"
 )
 TEACHER_SEASTEM_MESSAGE = (
-    "You are an assistant for teacher. Answer using ukrainian language. It is improtant not to send answers in russian."
+    "Вітаю! Я ваш асистент. Я тут, щоб підтримати вас у навчальному процесі та відповісти на будь-які питання, які можуть виникнути. Якщо вам знадобиться моя допомога, будь ласка, не соромтеся звертатися!"
 )

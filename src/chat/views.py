@@ -104,6 +104,33 @@ class ChatViewSet(ModelViewSet):
         serializer = MessageSerializer(ai_message)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    @action(detail=True, methods=["post"], url_path="content")
+    def send(self, request, pk=None):
+        chat = self.get_object()
+        message_text = request.data.get("message", "")
+        if not message_text or not str(message_text).strip():
+            return Response(
+                {"message": ["This field is required."]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        message_text = str(message_text).strip()
+
+        try:
+            ai_message = get_ai_message(chat, message_text)
+        except NoAPIKeyException as exc:
+            return Response(
+                {"detail": str(exc)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        except RuntimeError as exc:
+            return Response(
+                {"detail": str(exc)},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+
+        serializer = MessageSerializer(ai_message)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 class MessageCreateView(APIView):
     def post(self, request, chat_id):

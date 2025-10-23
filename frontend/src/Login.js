@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import axiosInstance from './axiosInstance';
 import AuthErrorDisplay from './AuthErrorDisplay';
-import { API_URL } from './config';
 
 function Login() {
     const [userData, setUserData] = useState({
@@ -46,34 +45,47 @@ function Login() {
     };
 
     return (
-        <div className='screen-1wrap'>
-            <form onSubmit={handleSubmit}>
-        <div className="screen-1">
-        <h2>Вхід в акаунт</h2>
-  <div className="email">
-    <label for="email">Логін</label>
-    <div className="sec-2">
-      <ion-icon name="mail-outline"></ion-icon>
-      <input type="text" name="username" value={userData.username} onChange={handleChange} placeholder="Логін"/>
-    </div>
-  </div>
-  <div className="password">
-    <label for="password">Пароль</label>
-    <div className="sec-2">
-      <ion-icon name="lock-closed-outline"></ion-icon>
-      <input className="pas" type="password" name="password" placeholder="···" value={userData.password} onChange={handleChange}/>
-      <ion-icon className="show-hide" name="eye-outline"></ion-icon>
-    </div>
-
-  </div>
-  <AuthErrorDisplay error={error} errorMessage={errorMessage} />
-  <button className="login">Ввійти </button>
-  
-  <div className="footer1"><span><a href='/users/register'>Зареєструватися</a></span><span></span></div>
-  
-</div>
-</form>
-</div>
+        <div className='auth-page'>
+            <form className="auth-card" onSubmit={handleSubmit}>
+                <h2 className="auth-title">Вхід в акаунт</h2>
+                <div className="auth-field">
+                    <label className="auth-label" htmlFor="login-username">Логін</label>
+                    <div className="auth-input-wrapper">
+                        <ion-icon name="mail-outline"></ion-icon>
+                        <input
+                            id="login-username"
+                            type="text"
+                            name="username"
+                            value={userData.username}
+                            onChange={handleChange}
+                            placeholder="Логін"
+                        />
+                    </div>
+                </div>
+                <div className="auth-field">
+                    <label className="auth-label" htmlFor="login-password">Пароль</label>
+                    <div className="auth-input-wrapper">
+                        <ion-icon name="lock-closed-outline"></ion-icon>
+                        <input
+                            id="login-password"
+                            className="auth-password"
+                            type="password"
+                            name="password"
+                            placeholder="···"
+                            value={userData.password}
+                            onChange={handleChange}
+                        />
+                        <ion-icon className="show-hide" name="eye-outline"></ion-icon>
+                    </div>
+                </div>
+                <AuthErrorDisplay error={error} errorMessage={errorMessage} />
+                <button className="auth-submit" type="submit">Ввійти</button>
+                <div className="auth-footer">
+                    <span>Немає акаунту?</span>
+                    <a href='/users/register'>Зареєструватися</a>
+                </div>
+            </form>
+        </div>
     );
 }
 

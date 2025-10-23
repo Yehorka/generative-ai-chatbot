@@ -30,31 +30,45 @@ class GeminiProvider:
     api_key: str
 
     def complete(self, messages: Iterable[MessagePayload], model_name: str) -> str:
-        prompt_parts = []
+        contents: list[dict[str, object]] = []
+        system_instruction: dict[str, object] | None = None
+
         for message in messages:
-            role = message.get("role", "user")
-            content = message.get("content", "")
+            role = message.get("role", "user") or "user"
+            content = message.get("content", "") or ""
             if not content:
                 continue
-            if role == "assistant":
-                role_label = "Assistant"
-            elif role == "system":
-                role_label = "System"
-            else:
-                role_label = "User"
-            prompt_parts.append(f"{role_label}: {content}")
-        prompt = "\n\n".join(prompt_parts)
-        payload = {
-            "contents": [
+
+            if role == "system":
+                system_instruction = {
+                    "role": "system",
+                    "parts": [{"text": content}],
+                }
+                continue
+
+            mapped_role = "model" if role == "assistant" else "user"
+            contents.append(
                 {
-                    "parts": [
-                        {
-                            "text": prompt,
-                        }
-                    ]
+                    "role": mapped_role,
+                    "parts": [{"text": content}],
+                }
+            )
+
+        if not contents and not system_instruction:
+            return ""
+
+        payload: dict[str, object] = {
+            "contents": contents
+            or [
+                {
+                    "role": "user",
+                    "parts": [{"text": ""}],
                 }
             ]
         }
+        if system_instruction:
+            payload["systemInstruction"] = system_instruction
+
         url = (
             f"https://generativelanguage.googleapis.com/v1beta/models/"
             f"{model_name}:generateContent?key={self.api_key}"
@@ -68,9 +82,17 @@ class GeminiProvider:
             with urllib_request.urlopen(request) as response:
                 body = response.read().decode("utf-8")
         except urllib_error.HTTPError as exc:  # pragma: no cover - API error handling
-            raise RuntimeError(f"Gemini API error: {exc.read().decode('utf-8')}") from exc
+            error_payload = exc.read().decode("utf-8", errors="ignore")
+            raise RuntimeError(
+                f"Gemini API error ({exc.code}): {error_payload}"
+            ) from exc
+        except urllib_error.URLError as exc:  # pragma: no cover - network error handling
+            raise RuntimeError(f"Gemini API connection error: {exc.reason}") from exc
 
-        parsed = json.loads(body)
+        try:
+            parsed = json.loads(body)
+        except json.JSONDecodeError as exc:  # pragma: no cover - unexpected API response
+            raise RuntimeError(f"Gemini API returned invalid JSON: {body}") from exc
         candidates = parsed.get("candidates", [])
         if not candidates:
             return ""

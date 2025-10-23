@@ -1,21 +1,18 @@
 import React, { useState } from 'react';
 import axiosInstance from './axiosInstance';
-import { FaUniregistry } from 'react-icons/fa';
-import { API_URL } from './config';
 
 function Register() {
-
     const [userData, setUserData] = useState({
         username: '',
         password: '',
         user_type: 'student'
     });
-    const handleCheckboxChange = (e) => {
-      setAgree(e.target.checked);
-  };
-
     const [agree, setAgree] = useState(false);
-    
+
+    const handleCheckboxChange = (e) => {
+        setAgree(e.target.checked);
+    };
+
     const handleChange = (e) => {
         setUserData({ ...userData, [e.target.name]: e.target.value });
     };
@@ -23,21 +20,24 @@ function Register() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!agree) {
-          alert("Ви повинні погодитися з правилами користування чатботом.");
-          return;
-      }
-      if (!userData.username) {
-        alert("Введіть ім'я");
-        return;
-}
-if (!userData.password) {
-  alert("Введіть пароль");
-  return;
-}
-if (!userData.user_type) {
-  alert("Оберіть тип користувача ще раз");
-  return;
-}
+            alert("Ви повинні погодитися з правилами користування чатботом.");
+            return;
+        }
+
+        if (!userData.username) {
+            alert("Введіть ім'я");
+            return;
+        }
+
+        if (!userData.password) {
+            alert("Введіть пароль");
+            return;
+        }
+
+        if (!userData.user_type) {
+            alert("Оберіть тип користувача ще раз");
+            return;
+        }
 
         try {
             const response = await axiosInstance.post(`/users/register/`, userData);
@@ -60,46 +60,70 @@ if (!userData.user_type) {
     };
 
     return (
-        <div className='screen-1wrap'>
-            <form onSubmit={handleSubmit}>
-        <div className="screen-1">
-        <h2>Реєстрація</h2>
-  <div className="email">
-    <label for="email">Логін</label>
-    <div className="sec-2">
-      <ion-icon name="mail-outline"></ion-icon>
-      <input type="text" name="username" value={userData.username} onChange={handleChange} placeholder="Придумайте логін"/>
-    </div>
-  </div>
-  <div className="password">
-    <label for="password">Пароль</label>
-    <div className="sec-2">
-      <ion-icon name="lock-closed-outline"></ion-icon>
-      <input className="pas" type="password" name="password" placeholder="·········" value={userData.password} onChange={handleChange}/>
-      <ion-icon className="show-hide" name="eye-outline"></ion-icon>
-
-    </div>
-
-  </div>
-
-  <div className="type">
-    <label htmlFor="role">Оберіть роль:</label>
-                <select id="role" type="user_type" name="user_type" value={userData.user_type} defaultValue="option2" onChange={handleChange}>
-                    <option value="student">Студент </option>
-                    <option value="teacher">Викладач</option>
-                </select>
-                </div>
-                <div className="terms">
-                        <input type="checkbox" id="agree" checked={agree} onChange={handleCheckboxChange} />
-                        <label htmlFor="agree">Я погоджуюся з <a href='/rules'>правилами користування чатботом</a></label>
+        <div className='auth-page'>
+            <form className="auth-card" onSubmit={handleSubmit}>
+                <h2 className="auth-title">Реєстрація</h2>
+                <div className="auth-field">
+                    <label className="auth-label" htmlFor="register-username">Логін</label>
+                    <div className="auth-input-wrapper">
+                        <ion-icon name="mail-outline"></ion-icon>
+                        <input
+                            id="register-username"
+                            type="text"
+                            name="username"
+                            value={userData.username}
+                            onChange={handleChange}
+                            placeholder="Придумайте логін"
+                        />
                     </div>
-  <button className="login">Зареєструватися</button>
-  
-  <div className="footer1"><span><a href='/users/login'>Вхід в акаунт</a></span></div>
-  
-</div>
-</form>
-</div>
+                </div>
+                <div className="auth-field">
+                    <label className="auth-label" htmlFor="register-password">Пароль</label>
+                    <div className="auth-input-wrapper">
+                        <ion-icon name="lock-closed-outline"></ion-icon>
+                        <input
+                            id="register-password"
+                            className="auth-password"
+                            type="password"
+                            name="password"
+                            placeholder="·········"
+                            value={userData.password}
+                            onChange={handleChange}
+                        />
+                        <ion-icon className="show-hide" name="eye-outline"></ion-icon>
+                    </div>
+                </div>
+                <div className="auth-field">
+                    <label className="auth-label" htmlFor="register-role">Оберіть роль</label>
+                    <select
+                        id="register-role"
+                        name="user_type"
+                        value={userData.user_type}
+                        onChange={handleChange}
+                        className="auth-select"
+                    >
+                        <option value="student">Студент</option>
+                        <option value="teacher">Викладач</option>
+                    </select>
+                </div>
+                <div className="auth-terms">
+                    <label className="auth-terms-label" htmlFor="agree">
+                        <input
+                            id="agree"
+                            type="checkbox"
+                            checked={agree}
+                            onChange={handleCheckboxChange}
+                        />
+                        <span>Я погоджуюся з <a href='/rules'>правилами користування чатботом</a></span>
+                    </label>
+                </div>
+                <button className="auth-submit" type="submit">Зареєструватися</button>
+                <div className="auth-footer">
+                    <span>Вже маєте акаунт?</span>
+                    <a href='/users/login'>Вхід в акаунт</a>
+                </div>
+            </form>
+        </div>
     );
 }
 

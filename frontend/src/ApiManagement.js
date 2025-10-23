@@ -15,6 +15,12 @@ const API_KEY_CONFIG = {
     helpText:
       'Для роботи з платформою Gemini потрібен окремий API ключ, який можна згенерувати у Google AI Studio.',
   },
+  MISTRAL_API_KEY: {
+    label: 'Mistral',
+    helpUrl: 'https://console.mistral.ai/api-keys',
+    helpText:
+      'Для використання моделей Mistral необхідно додати ключ API, який можна створити у Mistral Console.',
+  },
 };
 
 const ApiManagement = () => {
@@ -24,6 +30,7 @@ const ApiManagement = () => {
   const [keyInputs, setKeyInputs] = useState({
     OPENAI_API_KEY: '',
     GEMINI_API_KEY: '',
+    MISTRAL_API_KEY: '',
   });
 
   useEffect(() => {

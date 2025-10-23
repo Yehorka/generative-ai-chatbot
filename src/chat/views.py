@@ -31,7 +31,12 @@ def get_chat(chat_id: str, user: User) -> Chat:
 
 def create_chat(user: User, data: dict) -> Chat:
     platform = (data.get("platform") or Chat.PLATFORM_CHOICES[0][0]).lower()
-    default_model = "gemini-2.5-flash-lite" if platform == "gemini" else "gpt-4o-mini"
+    if platform == "gemini":
+        default_model = "gemini-2.5-flash-lite"
+    elif platform == "mistral":
+        default_model = "mistral-small-latest"
+    else:
+        default_model = "gpt-4o-mini"
 
     chat = Chat(
         user=user,

@@ -1,12 +1,17 @@
 from rest_framework import serializers
 
 from .models import APIKey
-from .services import check_gemini_api_key, check_openai_api_key
+from .services import (
+    check_gemini_api_key,
+    check_mistral_api_key,
+    check_openai_api_key,
+)
 
 
 SUPPORTED_API_KEYS = {
     "OPENAI_API_KEY": check_openai_api_key,
     "GEMINI_API_KEY": check_gemini_api_key,
+    "MISTRAL_API_KEY": check_mistral_api_key,
 }
 
 

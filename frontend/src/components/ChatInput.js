@@ -69,8 +69,9 @@ const ChatInput = ({
             onClick={() => fileInputRef.current?.click()}
             disabled={!selectedChat}
             title="Завантажити зображення"
+            aria-label="Завантажити зображення"
           >
-            <FaImage />
+            <FaImage aria-hidden="true" />
           </button>
         </>
       )}

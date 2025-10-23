@@ -35,9 +35,10 @@ axiosInstance.interceptors.response.use(
                 return Promise.reject(refreshError);
             }
         }
-        if (error.response && error.response.data.detail == "Api key OPENAI_API_KEY does not excist") {
-            alert('Помилка з ключем API, зверніться до адміністратора для поновлення ключа API')
-          }
+        const detailMessage = error.response?.data?.detail;
+        if (typeof detailMessage === 'string' && detailMessage.toLowerCase().includes('api key')) {
+            alert('Помилка з ключем API, зверніться до адміністратора для поновлення ключа API');
+        }
 
         return Promise.reject(error); 
     }

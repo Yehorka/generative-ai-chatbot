@@ -1,8 +1,7 @@
-import React from "react";
 import Message from "./Message";
 import ChatInput from "./ChatInput";
 import DropdownMenu from "../DropdownMenu";
-import ChatTemplates from "./ChatTemplates"
+import ChatTemplates from "./ChatTemplates";
 
 const ChatUI = ({
   messages,
@@ -15,6 +14,8 @@ const ChatUI = ({
   selectedChatId,
   handleMessageChange,
   platform,
+  selectedModel,
+  onModelChange,
   onAttachImage,
   onRemoveImage,
   attachedImagePreview,
@@ -22,7 +23,12 @@ const ChatUI = ({
 }) => {
   return (
     <div className="chat-ui">
-      <DropdownMenu selectedChatId={selectedChatId} platform={platform} />
+      <DropdownMenu
+        selectedChatId={selectedChatId}
+        platform={platform}
+        selectedModel={selectedModel}
+        onModelChange={onModelChange}
+      />
       <div className="chat-messages">
       {messages.map((message, index) => (
           <Message
@@ -41,10 +47,10 @@ const ChatUI = ({
           </div>
         )}
         <div ref={messagesEndRef}></div>
-        {selectedChatId ? 
+        {selectedChatId ?
         <ChatTemplates onTemplateSelect={handleMessageChange}/>
         : null}
-        
+
       </div>
       <ChatInput
         inputMessage={inputMessage}

@@ -14,10 +14,15 @@ const ChatUI = ({
   messagesEndRef,
   selectedChatId,
   handleMessageChange,
+  platform,
+  onAttachImage,
+  onRemoveImage,
+  attachedImagePreview,
+  hasAttachment,
 }) => {
   return (
     <div className="chat-ui">
-      <DropdownMenu selectedChatId={selectedChatId}/>
+      <DropdownMenu selectedChatId={selectedChatId} platform={platform} />
       <div className="chat-messages">
       {messages.map((message, index) => (
           <Message
@@ -47,6 +52,11 @@ const ChatUI = ({
         sendMessage={sendMessage}
         handleMessageChange={handleMessageChange}
         selectedChat={selectedChatId}
+        onAttachImage={onAttachImage}
+        onRemoveImage={onRemoveImage}
+        attachedImagePreview={attachedImagePreview}
+        hasAttachment={hasAttachment}
+        platform={platform}
       />
     </div>
   );

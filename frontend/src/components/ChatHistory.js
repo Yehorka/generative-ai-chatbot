@@ -11,9 +11,24 @@ const ChatHistory = ({ chats, selectedChatId, setSelectedChatId, deleteChat }) =
         }`}
         onClick={() => setSelectedChatId(chat.id)}
       >
-        {chat.name}
+        <div className="chat-title">
+          <span>{chat.name}</span>
+          <span className={`platform-badge platform-${chat.platform}`}>
+            {chat.platform ? chat.platform.toUpperCase() : ""}
+          </span>
+        </div>
         {
-          selectedChatId === chat.id ? <div className='delete' onClick={() => deleteChat(chat.id)}><i className="fas fa-trash-alt"></i></div> : null
+          selectedChatId === chat.id ? (
+            <div
+              className='delete'
+              onClick={(event) => {
+                event.stopPropagation();
+                deleteChat(chat.id);
+              }}
+            >
+              <i className="fas fa-trash-alt"></i>
+            </div>
+          ) : null
         }
       </div>
       {index !== chats.length - 1 && <hr />}

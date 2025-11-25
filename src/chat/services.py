@@ -7,6 +7,7 @@ from typing import Iterable, Any
 from django.core.files.base import File
 
 from apis.services import NoAPIKeyException
+from apis.services import get_instruction_text
 
 from app.llm.factory import get_provider
 
@@ -93,6 +94,16 @@ def get_ai_message(chat: Chat, message_text: str, *, image_file=None) -> Message
 
     messages = chat.messages.order_by("timestamp")
     serialized_messages = _serialize_messages(messages)
+
+    instruction_text = get_instruction_text()
+    if instruction_text:
+        serialized_messages.insert(
+            0,
+            {
+                "role": Message.RoleChoices.SYSTEM,
+                "content": [{"type": "text", "text": instruction_text}],
+            },
+        )
 
     normalized_model = _normalize_model_name(chat.platform, chat.model_name)
     if normalized_model and normalized_model != chat.model_name:

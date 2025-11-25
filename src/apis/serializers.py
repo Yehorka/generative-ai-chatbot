@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import APIKey
+from .models import APIKey, InstructionFile
 from .services import (
     check_gemini_api_key,
     check_mistral_api_key,
@@ -40,3 +40,10 @@ class APIKeySerializer(serializers.ModelSerializer):
 
         attrs["name"] = normalized_name
         return attrs
+
+
+class InstructionFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InstructionFile
+        fields = ["id", "name", "parsed_content", "uploaded_at"]
+        read_only_fields = ["id", "parsed_content", "uploaded_at"]

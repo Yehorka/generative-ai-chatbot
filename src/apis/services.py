@@ -87,6 +87,24 @@ def _extract_text_from_response(payload) -> str:
         if chunks:
             return "".join(chunks)
 
+    choices_attr = getattr(payload, "choices", None)
+    if choices_attr:
+        chunks: list[str] = []
+        for choice in choices_attr or []:
+            message = getattr(choice, "message", None)
+            if not message:
+                continue
+            content = getattr(message, "content", None)
+            if isinstance(content, str) and content:
+                chunks.append(content)
+                continue
+            if isinstance(content, list):
+                for part in content:
+                    if isinstance(part, dict) and part.get("text"):
+                        chunks.append(str(part["text"]))
+        if chunks:
+            return "".join(chunks)
+
     if hasattr(payload, "model_dump"):
         return _extract_text_from_response(payload.model_dump())
 
@@ -98,6 +116,17 @@ def _extract_text_from_response(payload) -> str:
             for part in item.get("content", []) or []:
                 if isinstance(part, dict) and part.get("text"):
                     chunks.append(str(part["text"]))
+        for choice in payload.get("choices", []) or []:
+            message = choice.get("message") if isinstance(choice, dict) else None
+            if not message:
+                continue
+            content = message.get("content") if isinstance(message, dict) else None
+            if isinstance(content, str) and content:
+                chunks.append(content)
+            elif isinstance(content, list):
+                for part in content:
+                    if isinstance(part, dict) and part.get("text"):
+                        chunks.append(str(part["text"]))
         if chunks:
             return "".join(chunks)
 
@@ -117,30 +146,21 @@ def parse_instruction_file(upload) -> str:
         "Do not summarize or omit details. If the text seems encoded, use the provided base64 content to recover it."
     )
 
-    response = client.responses.create(
+    response = client.chat.completions.create(
         model="gpt-5",
-        input=[
-            {
-                "role": "system",
-                "content": [
-                    {"type": "input_text", "text": prompt},
-                ],
-            },
+        messages=[
+            {"role": "system", "content": prompt},
             {
                 "role": "user",
-                "content": [
-                    {
-                        "type": "input_text",
-                        "text": (
-                            f"File name: {upload.name}\n\n"
-                            "UTF-8 interpretation of the file contents follows. "
-                            "If characters look corrupted, rely on the base64 block below.\n\n"
-                            f"UTF-8 content:\n{decoded_content}\n\nBase64 content:\n{b64_content}"
-                        ),
-                    }
-                ],
+                "content": (
+                    f"File name: {upload.name}\n\n"
+                    "UTF-8 interpretation of the file contents follows. "
+                    "If characters look corrupted, rely on the base64 block below.\n\n"
+                    f"UTF-8 content:\n{decoded_content}\n\nBase64 content:\n{b64_content}"
+                ),
             },
         ],
+        temperature=0,
     )
 
     parsed_text = _extract_text_from_response(response)

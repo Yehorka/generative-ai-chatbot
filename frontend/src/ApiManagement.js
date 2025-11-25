@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axiosInstance from './axiosInstance';
 import Profile from './Profile';
 
@@ -32,6 +32,10 @@ const ApiManagement = () => {
     GEMINI_API_KEY: '',
     MISTRAL_API_KEY: '',
   });
+  const [instructionFiles, setInstructionFiles] = useState([]);
+  const [instructionUploads, setInstructionUploads] = useState([]);
+  const [uploadingInstruction, setUploadingInstruction] = useState(false);
+  const instructionInputRef = useRef(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -43,6 +47,10 @@ const ApiManagement = () => {
 
         setIsAdmin(adminResponse.data.is_admin);
         applyKeyData(keysResponse.data);
+
+        if (adminResponse.data.is_admin) {
+          await loadInstructionFiles();
+        }
       } catch (error) {
         console.error('There was an error loading API management data!', error);
       } finally {
@@ -86,6 +94,45 @@ const ApiManagement = () => {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const loadInstructionFiles = async () => {
+    try {
+      const response = await axiosInstance.get('/apis/instructions/');
+      setInstructionFiles(response.data || []);
+    } catch (error) {
+      console.error('Error loading instruction files:', error);
+    }
+  };
+
+  const handleInstructionSubmit = async (event) => {
+    event.preventDefault();
+    if (!instructionUploads.length) {
+      alert('Будь ласка, додайте файл з інструкціями.');
+      return;
+    }
+
+    try {
+      setUploadingInstruction(true);
+      for (const file of instructionUploads) {
+        const formData = new FormData();
+        formData.append('file', file);
+        await axiosInstance.post('/apis/instructions/', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      }
+      alert('Файли інструкцій успішно зчитано GPT-5!');
+      setInstructionUploads([]);
+      if (instructionInputRef.current) {
+        instructionInputRef.current.value = '';
+      }
+      await loadInstructionFiles();
+    } catch (error) {
+      console.error('Error uploading instruction file:', error);
+      alert('Не вдалося опрацювати файл інструкції. Перевірте ключ OpenAI та спробуйте ще раз.');
+    } finally {
+      setUploadingInstruction(false);
+    }
   };
 
   const handleSubmit = async (event, name) => {
@@ -140,6 +187,17 @@ const ApiManagement = () => {
     } catch (error) {
       console.error('Error deleting API Key:', error);
       alert('Сталася помилка під час видалення ключа API.');
+    }
+  };
+
+  const handleInstructionDelete = async (id) => {
+    try {
+      await axiosInstance.delete(`/apis/instructions/${id}/`);
+      await loadInstructionFiles();
+      alert('Файл інструкції видалено.');
+    } catch (error) {
+      console.error('Error deleting instruction file:', error);
+      alert('Не вдалося видалити інструкцію.');
     }
   };
 
@@ -205,7 +263,66 @@ const ApiManagement = () => {
         <h1>
           Для користування чатботом необхідно ввести чинні ключі API для обраних платформ.
         </h1>
-        {Object.keys(API_KEY_CONFIG).map(renderKeySection)}
+        <div className='api-management-grid'>
+          {Object.keys(API_KEY_CONFIG).map(renderKeySection)}
+
+          <section className='api-key-section'>
+            <h2>Файл інструкції для чатбота</h2>
+            <p>
+              Додайте один або кілька файлів з інструкціями (наприклад силабус або правила
+              курсу). Вміст кожного файлу буде розпізнано моделлю GPT-5 та збережено в базі даних,
+              щоб кожна мовна модель могла використовувати ці інструкції. Після перезапуску
+              бекенду інструкції знову зчитуються з бази даних.
+            </p>
+
+            <div className='instruction-hint'>
+              Максимальний розмір одного файлу — 5 МБ. Підтримувані формати: TXT, PDF, DOC, DOCX,
+              MD.
+            </div>
+
+            {instructionFiles.length > 0 ? (
+              instructionFiles.map((file) => (
+                <div key={file.id} className='instruction-preview-block'>
+                  <div className='instruction-meta'>
+                    <div>
+                      <strong>Назва:</strong> {file.name} | <strong>Оновлено:</strong>{' '}
+                      {new Date(file.uploaded_at).toLocaleString()}
+                    </div>
+                    <button
+                      type='button'
+                      className='instruction-delete'
+                      onClick={() => handleInstructionDelete(file.id)}
+                    >
+                      Видалити
+                    </button>
+                  </div>
+                  <div className='instruction-preview'>
+                    {file.parsed_content || 'Вміст інструкції ще не сформовано.'}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p>Інструкції ще не завантажені.</p>
+            )}
+
+            <form onSubmit={handleInstructionSubmit} className='instruction-form'>
+              <label>
+                Файл з інструкціями:
+                <input
+                  ref={instructionInputRef}
+                  type='file'
+                  accept='.txt,.pdf,.doc,.docx,.md'
+                  multiple
+                  onChange={(event) => setInstructionUploads(Array.from(event.target.files || []))}
+                  required
+                />
+              </label>
+              <button type='submit' disabled={uploadingInstruction}>
+                {uploadingInstruction ? 'Зчитування...' : 'Додати інструкції'}
+              </button>
+            </form>
+          </section>
+        </div>
         <p>Після введення ключів API можна вийти з акаунта.</p>
       </div>
       <Profile />

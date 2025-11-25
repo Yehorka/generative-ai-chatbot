@@ -1,11 +1,14 @@
+import base64
 from urllib import error as urllib_error
 from urllib import request as urllib_request
 
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import OperationalError, ProgrammingError
 from openai import AuthenticationError, OpenAI
 from rest_framework import status
 
-from .models import APIKey
+from .models import APIKey, InstructionFile
 
 
 class NoAPIKeyException(Exception):
@@ -54,3 +57,138 @@ def check_mistral_api_key(api_key: str) -> bool:
 
 def get_openai_client():
     return OpenAI(api_key=get_api_key("OPENAI_API_KEY"))
+
+
+def _resolve_openai_api_key() -> str:
+    try:
+        return get_api_key("OPENAI_API_KEY")
+    except NoAPIKeyException:
+        if getattr(settings, "OPENAI_API_KEY", None):
+            return settings.OPENAI_API_KEY
+        raise
+
+
+def _extract_text_from_response(payload) -> str:
+    text_response = getattr(payload, "output_text", None)
+    if isinstance(text_response, str) and text_response:
+        return text_response
+
+    output_attr = getattr(payload, "output", None)
+    if output_attr:
+        chunks: list[str] = []
+        for item in output_attr or []:
+            content = getattr(item, "content", None)
+            if not content:
+                continue
+            for part in content:
+                text_value = getattr(part, "text", None)
+                if text_value:
+                    chunks.append(str(text_value))
+        if chunks:
+            return "".join(chunks)
+
+    choices_attr = getattr(payload, "choices", None)
+    if choices_attr:
+        chunks: list[str] = []
+        for choice in choices_attr or []:
+            message = getattr(choice, "message", None)
+            if not message:
+                continue
+            content = getattr(message, "content", None)
+            if isinstance(content, str) and content:
+                chunks.append(content)
+                continue
+            if isinstance(content, list):
+                for part in content:
+                    if isinstance(part, dict) and part.get("text"):
+                        chunks.append(str(part["text"]))
+        if chunks:
+            return "".join(chunks)
+
+    if hasattr(payload, "model_dump"):
+        return _extract_text_from_response(payload.model_dump())
+
+    if isinstance(payload, dict):
+        if isinstance(payload.get("output_text"), str) and payload.get("output_text"):
+            return str(payload["output_text"])
+        chunks: list[str] = []
+        for item in payload.get("output", []) or []:
+            for part in item.get("content", []) or []:
+                if isinstance(part, dict) and part.get("text"):
+                    chunks.append(str(part["text"]))
+        for choice in payload.get("choices", []) or []:
+            message = choice.get("message") if isinstance(choice, dict) else None
+            if not message:
+                continue
+            content = message.get("content") if isinstance(message, dict) else None
+            if isinstance(content, str) and content:
+                chunks.append(content)
+            elif isinstance(content, list):
+                for part in content:
+                    if isinstance(part, dict) and part.get("text"):
+                        chunks.append(str(part["text"]))
+        if chunks:
+            return "".join(chunks)
+
+    return ""
+
+
+def parse_instruction_file(upload) -> str:
+    content_bytes = upload.read()
+    upload.seek(0)
+    decoded_content = content_bytes.decode("utf-8", errors="ignore")
+    b64_content = base64.b64encode(content_bytes).decode("utf-8")
+
+    client = OpenAI(api_key=_resolve_openai_api_key())
+    prompt = (
+        "You will receive the content of an instruction document. "
+        "Return a faithful plain-text rendition preserving headings, lists, and important structure. "
+        "Do not summarize or omit details. If the text seems encoded, use the provided base64 content to recover it."
+    )
+
+    response = client.chat.completions.create(
+        model="gpt-5",
+        messages=[
+            {"role": "system", "content": prompt},
+            {
+                "role": "user",
+                "content": (
+                    f"File name: {upload.name}\n\n"
+                    "UTF-8 interpretation of the file contents follows. "
+                    "If characters look corrupted, rely on the base64 block below.\n\n"
+                    f"UTF-8 content:\n{decoded_content}\n\nBase64 content:\n{b64_content}"
+                ),
+            },
+        ],
+        temperature=0,
+    )
+
+    parsed_text = _extract_text_from_response(response)
+    return (parsed_text or decoded_content or "").strip()
+
+
+def _load_instructions_from_db() -> str:
+    try:
+        contents = InstructionFile.objects.order_by("uploaded_at").values_list(
+            "parsed_content", flat=True
+        )
+        normalized = [content.strip() for content in contents if content]
+        return "\n\n".join(normalized)
+    except (OperationalError, ProgrammingError):
+        return ""
+
+
+_instruction_cache: str | None = None
+
+
+def refresh_instruction_cache() -> str:
+    global _instruction_cache
+    _instruction_cache = _load_instructions_from_db()
+    return _instruction_cache
+
+
+def get_instruction_text() -> str:
+    global _instruction_cache
+    if _instruction_cache is None:
+        return refresh_instruction_cache()
+    return _instruction_cache

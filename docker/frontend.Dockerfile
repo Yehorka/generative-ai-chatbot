@@ -6,10 +6,11 @@ COPY frontend/package*.json ./
 RUN npm ci
 
 COPY frontend .
-RUN npm run build || npm run build --if-present \
-  && if [ -d build ]; then cp -r build /frontend/build_artifact; \
-     elif [ -d dist ]; then cp -r dist /frontend/build_artifact; \
-     else echo "No frontend build output found" && exit 1; fi
+RUN npm run build || npm run build --if-present; \
+  mkdir -p /frontend/build_artifact; \
+  if [ -d build ]; then cp -r build/. /frontend/build_artifact/; \
+  elif [ -d dist ]; then cp -r dist/. /frontend/build_artifact/; \
+  else echo "No frontend build output found" && exit 1; fi
 
 # Production stage
 FROM nginx:stable-alpine

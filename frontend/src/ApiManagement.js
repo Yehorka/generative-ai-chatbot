@@ -24,6 +24,9 @@ const API_KEY_CONFIG = {
 };
 
 const ApiManagement = () => {
+  const ALLOWED_INSTRUCTION_EXTENSIONS = ['.txt'];
+  const MAX_INSTRUCTION_SIZE = 5 * 1024 * 1024; // 5 MB
+
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [apiKeys, setApiKeys] = useState({});
@@ -112,6 +115,22 @@ const ApiManagement = () => {
       return;
     }
 
+    const hasInvalidFiles = instructionUploads.some((file) => {
+      const lowerName = (file.name || '').toLowerCase();
+      const dotIndex = lowerName.lastIndexOf('.');
+      const extension = dotIndex >= 0 ? lowerName.slice(dotIndex) : '';
+      return !ALLOWED_INSTRUCTION_EXTENSIONS.includes(extension) || file.size > MAX_INSTRUCTION_SIZE;
+    });
+
+    if (hasInvalidFiles) {
+      alert('Дозволено лише TXT-файли розміром до 5 МБ. Перевірте файли та спробуйте знову.');
+      setInstructionUploads([]);
+      if (instructionInputRef.current) {
+        instructionInputRef.current.value = '';
+      }
+      return;
+    }
+
     try {
       setUploadingInstruction(true);
       for (const file of instructionUploads) {
@@ -129,7 +148,7 @@ const ApiManagement = () => {
       await loadInstructionFiles();
     } catch (error) {
       console.error('Error uploading instruction file:', error);
-      alert('Не вдалося опрацювати файл інструкції. Перевірте ключ OpenAI та спробуйте ще раз.');
+      alert('Не вдалося опрацювати файл інструкції. Перевірте формат файлу та ключ Gemini.');
     } finally {
       setUploadingInstruction(false);
     }
@@ -276,8 +295,7 @@ const ApiManagement = () => {
             </p>
 
             <div className='instruction-hint'>
-              Максимальний розмір одного файлу — 5 МБ. Підтримувані формати: TXT, PDF, DOC, DOCX,
-              MD.
+              Максимальний розмір одного файлу — 5 МБ. Підтримуваний формат: TXT.
             </div>
 
             {instructionFiles.length > 0 ? (
@@ -311,7 +329,7 @@ const ApiManagement = () => {
                 <input
                   ref={instructionInputRef}
                   type='file'
-                  accept='.txt,.pdf,.doc,.docx,.md'
+                  accept='.txt'
                   multiple
                   onChange={(event) => setInstructionUploads(Array.from(event.target.files || []))}
                   required

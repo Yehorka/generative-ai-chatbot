@@ -1,4 +1,5 @@
 import base64
+from pathlib import Path
 from urllib import error as urllib_error
 from urllib import request as urllib_request
 
@@ -63,6 +64,10 @@ def _resolve_openai_api_key() -> str:
 
 
 def _extract_text_from_response(payload) -> str:
+    text_attr = getattr(payload, "text", None)
+    if isinstance(text_attr, str) and text_attr:
+        return text_attr
+
     text_response = getattr(payload, "output_text", None)
     if isinstance(text_response, str) and text_response:
         return text_response
@@ -103,6 +108,8 @@ def _extract_text_from_response(payload) -> str:
         return _extract_text_from_response(payload.model_dump())
 
     if isinstance(payload, dict):
+        if isinstance(payload.get("text"), str) and payload.get("text"):
+            return str(payload["text"])
         if isinstance(payload.get("output_text"), str) and payload.get("output_text"):
             return str(payload["output_text"])
         chunks: list[str] = []
@@ -131,30 +138,32 @@ def parse_instruction_file(upload) -> str:
     content_bytes = upload.read()
     upload.seek(0)
     decoded_content = content_bytes.decode("utf-8", errors="ignore")
-    b64_content = base64.b64encode(content_bytes).decode("utf-8")
+    extension = Path(upload.name).suffix.lower()
+    if extension == ".txt":
+        return decoded_content.strip()
 
-    client = OpenAI(api_key=_resolve_openai_api_key())
+    import google.generativeai as genai
+
+    genai.configure(api_key=get_api_key("GEMINI_API_KEY"))
+    model = genai.GenerativeModel("gemini-2.5-flash-lite")
+
+    b64_content = base64.b64encode(content_bytes).decode("utf-8")
     prompt = (
         "You will receive the content of an instruction document. "
         "Return a faithful plain-text rendition preserving headings, lists, and important structure. "
         "Do not summarize or omit details. If the text seems encoded, use the provided base64 content to recover it."
     )
 
-    response = client.chat.completions.create(
-        model="gpt-5",
-        messages=[
-            {"role": "system", "content": prompt},
-            {
-                "role": "user",
-                "content": (
-                    f"File name: {upload.name}\n\n"
-                    "UTF-8 interpretation of the file contents follows. "
-                    "If characters look corrupted, rely on the base64 block below.\n\n"
-                    f"UTF-8 content:\n{decoded_content}\n\nBase64 content:\n{b64_content}"
-                ),
-            },
-        ],
-        temperature=0,
+    response = model.generate_content(
+        [
+            prompt,
+            (
+                f"File name: {upload.name}\n\n"
+                "UTF-8 interpretation of the file contents follows. "
+                "If characters look corrupted, rely on the base64 block below.\n\n"
+                f"UTF-8 content:\n{decoded_content}\n\nBase64 content:\n{b64_content}"
+            ),
+        ]
     )
 
     parsed_text = _extract_text_from_response(response)

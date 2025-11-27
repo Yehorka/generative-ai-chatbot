@@ -2,7 +2,6 @@ import base64
 from urllib import error as urllib_error
 from urllib import request as urllib_request
 
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import OperationalError, ProgrammingError
 from openai import AuthenticationError, OpenAI
@@ -60,12 +59,7 @@ def get_openai_client():
 
 
 def _resolve_openai_api_key() -> str:
-    try:
-        return get_api_key("OPENAI_API_KEY")
-    except NoAPIKeyException:
-        if getattr(settings, "OPENAI_API_KEY", None):
-            return settings.OPENAI_API_KEY
-        raise
+    return get_api_key("OPENAI_API_KEY")
 
 
 def _extract_text_from_response(payload) -> str:

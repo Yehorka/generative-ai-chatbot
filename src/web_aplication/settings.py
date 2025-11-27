@@ -22,12 +22,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-h4^^*i&&c$*r!wql29$prt#u5du4&+pz2!g#zq+94ju7_h7mzy'
+SECRET_KEY = getenv(
+    "DJANGO_SECRET_KEY",
+    "django-insecure-h4^^*i&&c$*r!wql29$prt#u5du4&+pz2!g#zq+94ju7_h7mzy",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = getenv("DJANGO_DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [host for host in getenv("DJANGO_ALLOWED_HOSTS", "*").split(",") if host]
 
 
 # Application definition
@@ -87,7 +90,7 @@ WSGI_APPLICATION = 'web_aplication.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': Path(getenv('SQLITE_PATH', BASE_DIR / 'db.sqlite3')),
     }
 }
 
@@ -126,7 +129,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = getenv('STATIC_URL', 'static/')
+STATIC_ROOT = Path(getenv('STATIC_ROOT', BASE_DIR / 'staticfiles'))
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -153,12 +157,6 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME_LATE_USER': timedelta(days=1),
     'SLIDING_TOKEN_LIFETIME_LATE_USER': timedelta(days=30),
 }
-
-ALLOWED_HOSTS = ['*']
-
-OPENAI_API_KEY = getenv("OPENAI_API_KEY")
-GEMINI_API_KEY = getenv("GEMINI_API_KEY")
-MISTRAL_API_KEY = getenv("MISTRAL_API_KEY")
 
 AUTH_USER_MODEL = 'users.User'
 

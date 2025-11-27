@@ -36,16 +36,17 @@ services:
       - SQLITE_PATH=/data/db.sqlite3
       - STATIC_ROOT=/app/staticfiles
 
-  nginx:
+  frontend:
     build:
       context: .
       dockerfile: docker/frontend.Dockerfile
+    environment:
+      - HOST=0.0.0.0
+      - PORT=3090
     ports:
-      - "3090:80"
+      - "3090:3090"
     depends_on:
       - backend
-    volumes:
-      - static_volume:/staticfiles:ro
 
 volumes:
   static_volume:

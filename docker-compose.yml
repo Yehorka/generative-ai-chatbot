@@ -16,8 +16,10 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+    ports:
+      - "8090:8090"
     expose:
-      - "8000"
+      - "8090"
 
   migrate:
     build:
@@ -39,7 +41,7 @@ services:
       context: .
       dockerfile: docker/frontend.Dockerfile
     ports:
-      - "80:80"
+      - "3090:80"
     depends_on:
       - backend
     volumes:

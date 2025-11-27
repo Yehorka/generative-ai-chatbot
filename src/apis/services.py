@@ -139,8 +139,8 @@ def parse_instruction_file(upload) -> str:
     upload.seek(0)
     decoded_content = content_bytes.decode("utf-8", errors="ignore")
     extension = Path(upload.name).suffix.lower()
-    if extension == ".txt":
-        return decoded_content.strip()
+    if extension != ".txt":
+        raise ValueError("Only .txt instruction files are supported.")
 
     import google.generativeai as genai
 
@@ -149,9 +149,10 @@ def parse_instruction_file(upload) -> str:
 
     b64_content = base64.b64encode(content_bytes).decode("utf-8")
     prompt = (
-        "You will receive the content of an instruction document. "
-        "Return a faithful plain-text rendition preserving headings, lists, and important structure. "
-        "Do not summarize or omit details. If the text seems encoded, use the provided base64 content to recover it."
+        "You will receive plain-text instructions from a .txt document. "
+        "Preserve the wording exactly while lightly cleaning spacing or line breaks if needed. "
+        "Do not rewrite, summarize, or omit anything. If any part is unclear, return the text verbatim. "
+        "If the text seems encoded or corrupted, use the provided base64 content to recover it without changing wording."
     )
 
     response = model.generate_content(
@@ -159,8 +160,8 @@ def parse_instruction_file(upload) -> str:
             prompt,
             (
                 f"File name: {upload.name}\n\n"
-                "UTF-8 interpretation of the file contents follows. "
-                "If characters look corrupted, rely on the base64 block below.\n\n"
+                "Here is the instruction text. Preserve all wording exactly; only tidy spacing if absolutely necessary. "
+                "If characters look corrupted, rely on the base64 block below. If you cannot cleanly format, return the text unchanged.\n\n"
                 f"UTF-8 content:\n{decoded_content}\n\nBase64 content:\n{b64_content}"
             ),
         ]

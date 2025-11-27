@@ -31,7 +31,7 @@ class InstructionFileViewSet(ModelViewSet):
     parser_classes = [MultiPartParser, FormParser]
 
     MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
-    ALLOWED_EXTENSIONS = {".txt", ".pdf", ".doc", ".docx", ".md"}
+    ALLOWED_EXTENSIONS = {".txt"}
 
     def create(self, request, *args, **kwargs):
         upload = request.FILES.get("file")
@@ -50,7 +50,7 @@ class InstructionFileViewSet(ModelViewSet):
         extension = Path(upload.name).suffix.lower()
         if extension and extension not in self.ALLOWED_EXTENSIONS:
             return Response(
-                {"file": ["Непідтримуваний формат файлу. Дозволені: txt, pdf, doc, docx, md."]},
+                {"file": ["Непідтримуваний формат файлу. Дозволений формат: txt."]},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
